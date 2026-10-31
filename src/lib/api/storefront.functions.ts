@@ -158,7 +158,12 @@ export const getStorefrontDataFn = createServerFn({ method: "GET" }).handler(
     };
 
     // Populate PS Plus strictly from database variants
-    const psPlusProd = activeProds.find((p) => p.slug === "ps-plus");
+    const psPlusProd = activeProds.find(
+      (p) =>
+        p.slug === "ps-plus" ||
+        p.slug === "playstation-plus" ||
+        p.id === "playstation-plus",
+    );
     if (psPlusProd) {
       const psVariants = allVariants.filter(
         (v) => v.productId === psPlusProd.id,
@@ -192,7 +197,12 @@ export const getStorefrontDataFn = createServerFn({ method: "GET" }).handler(
 
     // 7. Map database products to the games/offers grid
     const gamesGrid: StorefrontData["games"] = [];
-    const nonPsPlusProds = activeProds.filter((p) => p.slug !== "ps-plus");
+    const nonPsPlusProds = activeProds.filter(
+      (p) =>
+        p.slug !== "ps-plus" &&
+        p.slug !== "playstation-plus" &&
+        p.id !== "playstation-plus",
+    );
 
     for (const p of nonPsPlusProds) {
       const pVariants = allVariants.filter((v) => v.productId === p.id);

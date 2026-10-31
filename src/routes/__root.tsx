@@ -87,7 +87,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         {
           name: "description",
           content:
-            "اشتراكات Netflix, PlayStation Plus, Spotify, Disney+ وأكثر — تسليم فوري | دفع آمن | دعم 24/7",
+            "اشتراكات PlayStation Plus وأحدث ألعاب PS4 و PS5 وبطاقات بلايستيشن في مصر — تسليم فوري | دفع آمن | دعم 24/7",
         },
         {
           property: "og:title",
@@ -96,7 +96,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         {
           property: "og:description",
           content:
-            "اشتراكات Netflix, PlayStation Plus, Spotify, Disney+ وأكثر — تسليم فوري | دفع آمن | دعم 24/7",
+            "اشتراكات PlayStation Plus وأحدث ألعاب PS4 و PS5 وبطاقات بلايستيشن في مصر — تسليم فوري | دفع آمن | دعم 24/7",
         },
         { property: "og:type", content: "website" },
         { name: "twitter:card", content: "summary_large_image" },
@@ -107,7 +107,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         {
           name: "twitter:description",
           content:
-            "اشتراكات Netflix, PlayStation Plus, Spotify, Disney+ وأكثر — تسليم فوري | دفع آمن | دعم 24/7",
+            "اشتراكات PlayStation Plus وأحدث ألعاب PS4 و PS5 وبطاقات بلايستيشن في مصر — تسليم فوري | دفع آمن | دعم 24/7",
         },
         {
           property: "og:image",

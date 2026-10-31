@@ -163,14 +163,6 @@ const GAMES: Game[] = [
     slots: { prim5: 1600, prim4: null, sec: 1200 },
     accent: "from-slate-800 via-blue-950 to-black",
   },
-  {
-    slug: "netflix",
-    name: "Netflix",
-    platforms: [],
-    simplePrice: 140,
-    simpleLabel: "يوزر",
-    accent: "from-red-700 via-black to-black",
-  },
 
   // ===== Existing catalog (unchanged) =====
   {
