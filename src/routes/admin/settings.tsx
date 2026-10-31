@@ -49,17 +49,34 @@ function AdminSettingsPage() {
       "24/7 على مدار الساعة",
   );
 
+  // Helper to guarantee string extraction
+  const extractString = (val: unknown, fallback: string): string => {
+    if (typeof val === "string" && val.trim().length > 0) return val.trim();
+    if (typeof val === "object" && val !== null) {
+      const obj = val as Record<string, unknown>;
+      if (typeof obj.number === "string" && obj.number.trim().length > 0)
+        return obj.number.trim();
+      if (typeof obj.id === "string" && obj.id.trim().length > 0)
+        return obj.id.trim();
+      if (typeof obj.value === "string" && obj.value.trim().length > 0)
+        return obj.value.trim();
+    }
+    return fallback;
+  };
+
   // Payment Accounts state
   const [vodafoneCash, setVodafoneCash] = useState(
-    settings.paymentAccounts.vodafone_cash ||
-      settings.paymentAccounts.vodafoneCash ||
+    extractString(
+      settings.paymentAccounts.vodafone_cash ||
+        settings.paymentAccounts.vodafoneCash,
       "01109664083",
+    ),
   );
   const [instapay, setInstapay] = useState(
-    settings.paymentAccounts.instapay || "01014956483",
+    extractString(settings.paymentAccounts.instapay, "01014956483"),
   );
   const [telda, setTelda] = useState(
-    settings.paymentAccounts.telda || "@flix90",
+    extractString(settings.paymentAccounts.telda, "@flix90"),
   );
 
   // Announcement state

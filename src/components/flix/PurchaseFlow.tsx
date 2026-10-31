@@ -34,6 +34,20 @@ const DEFAULT_INSTAPAY_NUMBER = "01014956483"; // انستاباي فقط
 const DEFAULT_TELDA_ID = "@flix90";
 const INSTAPAY_LINK = "https://ipn.eg/S/flixop90/instapay/2jsoLA";
 
+function extractStr(val: unknown, fallback: string): string {
+  if (typeof val === "string" && val.trim().length > 0) return val.trim();
+  if (typeof val === "object" && val !== null) {
+    const obj = val as Record<string, unknown>;
+    if (typeof obj.number === "string" && obj.number.trim().length > 0)
+      return obj.number.trim();
+    if (typeof obj.id === "string" && obj.id.trim().length > 0)
+      return obj.id.trim();
+    if (typeof obj.value === "string" && obj.value.trim().length > 0)
+      return obj.value.trim();
+  }
+  return fallback;
+}
+
 function CopyBtn({ value }: { value: string }) {
   const [copied, setCopied] = useState(false);
   return (
@@ -71,16 +85,30 @@ export function PurchaseFlow({
   order: PurchaseOrder | null;
   settings?: StorefrontData["settings"];
 }) {
-  const orderWa = settings?.contactInfo?.primaryWhatsapp || DEFAULT_ORDER_WA;
-  const vodafoneNumber =
-    settings?.paymentAccounts?.vodafoneCash || DEFAULT_VODAFONE_NUMBER;
-  const instapayNumber =
-    settings?.paymentAccounts?.instapay || DEFAULT_INSTAPAY_NUMBER;
-  const displayOrderNumber =
-    settings?.contactInfo?.displayOrderNumber || "01109664083";
-  const displayPaymentNumber =
-    settings?.contactInfo?.displayPaymentNumber || "01014956483";
-  const teldaId = settings?.paymentAccounts?.telda || DEFAULT_TELDA_ID;
+  const orderWa = extractStr(
+    settings?.contactInfo?.primaryWhatsapp,
+    DEFAULT_ORDER_WA,
+  );
+  const vodafoneNumber = extractStr(
+    settings?.paymentAccounts?.vodafoneCash,
+    DEFAULT_VODAFONE_NUMBER,
+  );
+  const instapayNumber = extractStr(
+    settings?.paymentAccounts?.instapay,
+    DEFAULT_INSTAPAY_NUMBER,
+  );
+  const displayOrderNumber = extractStr(
+    settings?.contactInfo?.displayOrderNumber,
+    "01109664083",
+  );
+  const displayPaymentNumber = extractStr(
+    settings?.contactInfo?.displayPaymentNumber,
+    "01014956483",
+  );
+  const teldaId = extractStr(
+    settings?.paymentAccounts?.telda,
+    DEFAULT_TELDA_ID,
+  );
 
   const methods = useMemo(
     () => [
@@ -142,8 +170,8 @@ export function PurchaseFlow({
   }, [receipt]);
 
   const selectedMethod = useMemo(
-    () => METHODS.find((m) => m.id === method) || null,
-    [method],
+    () => methods.find((m) => m.id === method) || null,
+    [methods, method],
   );
 
   if (!order || order.price <= 0) return null;
@@ -574,8 +602,8 @@ export function PurchaseFlow({
                       rel="noreferrer"
                       className="inline-flex items-center justify-center gap-2 px-4 py-3 rounded-lg bg-green-600/15 border border-green-500/50 hover:bg-green-600/25 text-green-200 text-sm transition"
                     >
-                      <MessageCircle className="h-4 w-4" /> تواصل معنا ·{" "}
-                      {displayOrderNumber}
+                      <MessageCircle className="h-4 w-4" /> قسم التحويلات ·{" "}
+                      {displayPaymentNumber}
                     </a>
                   </div>
 

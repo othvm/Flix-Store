@@ -7,21 +7,38 @@ export function Payments({
 }: {
   settings?: StorefrontData["settings"];
 }) {
+  const extractString = (val: unknown, fallback: string): string => {
+    if (typeof val === "string" && val.trim().length > 0) return val.trim();
+    if (typeof val === "object" && val !== null) {
+      const obj = val as Record<string, unknown>;
+      if (typeof obj.number === "string" && obj.number.trim().length > 0)
+        return obj.number.trim();
+      if (typeof obj.id === "string" && obj.id.trim().length > 0)
+        return obj.id.trim();
+      if (typeof obj.value === "string" && obj.value.trim().length > 0)
+        return obj.value.trim();
+    }
+    return fallback;
+  };
+
   const methods = [
     {
       name: "InstaPay",
       sub: "تحويل فوري عبر التطبيق",
-      detail: settings?.paymentAccounts?.instapay || "01014956483",
+      detail: extractString(settings?.paymentAccounts?.instapay, "01014956483"),
     },
     {
       name: "Vodafone Cash",
       sub: "محفظة فودافون كاش",
-      detail: settings?.paymentAccounts?.vodafoneCash || "01014956483",
+      detail: extractString(
+        settings?.paymentAccounts?.vodafoneCash,
+        "01109664083",
+      ),
     },
     {
       name: "Telda",
       sub: "كارت تيلدا المالي",
-      detail: settings?.paymentAccounts?.telda || "@flix90",
+      detail: extractString(settings?.paymentAccounts?.telda, "@flix90"),
     },
   ];
 

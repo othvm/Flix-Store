@@ -324,34 +324,52 @@ export const getStorefrontDataFn = createServerFn({ method: "GET" }).handler(
 
     // Dynamic settings extraction
     const rawContact =
-      (settingsMap.contact_info as Record<string, string>) || {};
+      (settingsMap.contact_info as Record<string, unknown>) || {};
     const rawPayment =
-      (settingsMap.payment_accounts as Record<string, string>) || {};
+      (settingsMap.payment_accounts as Record<string, unknown>) || {};
     const rawAnnouncement =
       (settingsMap.announcement as { active?: boolean; text?: string }) || {};
 
+    const extractString = (val: unknown, fallback: string): string => {
+      if (typeof val === "string" && val.trim().length > 0) return val.trim();
+      if (typeof val === "object" && val !== null) {
+        const obj = val as Record<string, unknown>;
+        if (typeof obj.number === "string" && obj.number.trim().length > 0)
+          return obj.number.trim();
+        if (typeof obj.id === "string" && obj.id.trim().length > 0)
+          return obj.id.trim();
+        if (typeof obj.value === "string" && obj.value.trim().length > 0)
+          return obj.value.trim();
+      }
+      return fallback;
+    };
+
     const contactInfo = {
-      primaryWhatsapp:
-        rawContact.primary_whatsapp ||
-        rawContact.primaryWhatsapp ||
+      primaryWhatsapp: extractString(
+        rawContact.primary_whatsapp || rawContact.primaryWhatsapp,
         "201109664083",
-      displayOrderNumber:
-        rawContact.display_order_number ||
-        rawContact.displayOrderNumber ||
+      ),
+      displayOrderNumber: extractString(
+        rawContact.display_order_number || rawContact.displayOrderNumber,
         "01109664083",
-      displayPaymentNumber:
-        rawContact.display_payment_number ||
-        rawContact.displayPaymentNumber ||
+      ),
+      displayPaymentNumber: extractString(
+        rawContact.display_payment_number || rawContact.displayPaymentNumber,
         "01014956483",
-      supportHours:
-        rawContact.support_hours || rawContact.supportHours || "24/7",
+      ),
+      supportHours: extractString(
+        rawContact.support_hours || rawContact.supportHours,
+        "24/7",
+      ),
     };
 
     const paymentAccounts = {
-      vodafoneCash:
-        rawPayment.vodafone_cash || rawPayment.vodafoneCash || "01109664083",
-      instapay: rawPayment.instapay || "01014956483",
-      telda: rawPayment.telda || "@flix90",
+      vodafoneCash: extractString(
+        rawPayment.vodafone_cash || rawPayment.vodafoneCash,
+        "01109664083",
+      ),
+      instapay: extractString(rawPayment.instapay, "01014956483"),
+      telda: extractString(rawPayment.telda, "@flix90"),
     };
 
     const announcement = {
