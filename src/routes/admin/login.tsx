@@ -1,6 +1,7 @@
 import { createFileRoute, redirect, useRouter } from "@tanstack/react-router";
 import { useState } from "react";
 import { checkAdminAuthFn, loginAdminFn } from "@/lib/api/admin.functions";
+import { ADMIN_ACCESS_LOCKED } from "@/lib/admin-lock";
 import {
   Lock,
   KeyRound,
@@ -13,6 +14,12 @@ import {
 
 export const Route = createFileRoute("/admin/login")({
   beforeLoad: async () => {
+    if (ADMIN_ACCESS_LOCKED) {
+      throw redirect({
+        to: "/",
+      });
+    }
+
     const auth = await checkAdminAuthFn();
     if (auth.authenticated) {
       throw redirect({

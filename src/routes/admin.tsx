@@ -7,6 +7,7 @@ import {
   useRouterState,
 } from "@tanstack/react-router";
 import { checkAdminAuthFn, logoutAdminFn } from "@/lib/api/admin.functions";
+import { ADMIN_ACCESS_LOCKED } from "@/lib/admin-lock";
 import {
   LayoutDashboard,
   Package,
@@ -22,6 +23,13 @@ import { useState } from "react";
 
 export const Route = createFileRoute("/admin")({
   beforeLoad: async ({ location }) => {
+    // If admin access is locked, redirect all /admin requests to the homepage
+    if (ADMIN_ACCESS_LOCKED) {
+      throw redirect({
+        to: "/",
+      });
+    }
+
     // Never intercept the login route
     if (location.pathname === "/admin/login") {
       return;

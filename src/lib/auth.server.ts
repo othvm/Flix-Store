@@ -9,6 +9,7 @@ import {
 import { eq, and, gt } from "drizzle-orm";
 import { getDb } from "@/db";
 import { adminSessions, adminLoginAttempts } from "@/db/schema";
+import { ADMIN_ACCESS_LOCKED } from "./admin-lock";
 
 export const ADMIN_SESSION_COOKIE = "flix_admin_session";
 const SESSION_DURATION_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
@@ -46,6 +47,10 @@ function getClientIp(): string {
  * generates a database session, and sets the session cookie.
  */
 export async function authenticateAdmin(accessCode: string) {
+  if (ADMIN_ACCESS_LOCKED) {
+    throw new Error("لوحة التحكم مقفلة حالياً.");
+  }
+
   const expectedCode = process.env.ADMIN_ACCESS_CODE || "othvm";
 
   const clientIp = getClientIp();
@@ -156,6 +161,10 @@ export async function authenticateAdmin(accessCode: string) {
  * Checks if the current request has an active, valid admin session in DB.
  */
 export async function getAdminSession() {
+  if (ADMIN_ACCESS_LOCKED) {
+    return null;
+  }
+
   try {
     const sessionId = getCookie(ADMIN_SESSION_COOKIE);
     if (!sessionId) {
@@ -186,6 +195,10 @@ export async function getAdminSession() {
  * Enforces admin authorization in server functions. Throws 401 if unauthenticated.
  */
 export async function assertAdminSession() {
+  if (ADMIN_ACCESS_LOCKED) {
+    throw new Error("UNAUTHORIZED: لوحة التحكم مقفلة حالياً.");
+  }
+
   const session = await getAdminSession();
   if (!session) {
     throw new Error("UNAUTHORIZED: Invalid or expired admin session.");
