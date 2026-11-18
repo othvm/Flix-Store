@@ -16,7 +16,12 @@ export function getDb() {
 
   if (!dbInstance) {
     // prepare: false is required for Supavisor transaction pooler (port 6543)
-    client = postgres(connectionString, { prepare: false });
+    client = postgres(connectionString, {
+      prepare: false,
+      connect_timeout: 4,
+      max: 1,
+      idle_timeout: 10,
+    });
     dbInstance = drizzle(client, { schema });
   }
 

@@ -463,7 +463,7 @@ function ProductFormModal({
   onSuccess,
 }: {
   isEdit: boolean;
-  product?: ProductItem;
+  product?: ProductItem | null;
   categories: Array<{ id: string; label: string }>;
   onClose: () => void;
   onSuccess: () => Promise<void>;

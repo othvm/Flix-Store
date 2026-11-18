@@ -17,6 +17,11 @@ import {
   storeSettings,
 } from "@/db/schema";
 import { count, eq, and, sql, desc, asc } from "drizzle-orm";
+import {
+  SEED_CATEGORIES,
+  SEED_PRODUCTS,
+  SEED_STORE_SETTINGS,
+} from "@/db/seed-data";
 
 /* =========================================================================
    1. AUTHENTICATION SERVER FUNCTIONS
@@ -55,73 +60,108 @@ export const logoutAdminFn = createServerFn({ method: "POST" }).handler(
 export const getAdminOverviewFn = createServerFn({ method: "GET" }).handler(
   async () => {
     await assertAdminSession();
-    const db = getDb();
+    try {
+      const db = getDb();
 
-    const [catCount] = await db.select({ total: count() }).from(categories);
-    const [prodCount] = await db.select({ total: count() }).from(products);
-    const [activeProdCount] = await db
-      .select({ total: count() })
-      .from(products)
-      .where(eq(products.isActive, true));
-    const [variantCount] = await db
-      .select({ total: count() })
-      .from(productVariants);
-    const [activeVariantCount] = await db
-      .select({ total: count() })
-      .from(productVariants)
-      .where(eq(productVariants.isAvailable, true));
-    const [offerCount] = await db.select({ total: count() }).from(offers);
-    const [activeOfferCount] = await db
-      .select({ total: count() })
-      .from(offers)
-      .where(eq(offers.isActive, true));
+      const [catCount] = await db.select({ total: count() }).from(categories);
+      const [prodCount] = await db.select({ total: count() }).from(products);
+      const [activeProdCount] = await db
+        .select({ total: count() })
+        .from(products)
+        .where(eq(products.isActive, true));
+      const [variantCount] = await db
+        .select({ total: count() })
+        .from(productVariants);
+      const [activeVariantCount] = await db
+        .select({ total: count() })
+        .from(productVariants)
+        .where(eq(productVariants.isAvailable, true));
+      const [offerCount] = await db.select({ total: count() }).from(offers);
+      const [activeOfferCount] = await db
+        .select({ total: count() })
+        .from(offers)
+        .where(eq(offers.isActive, true));
 
-    // Category distribution
-    const categoryDistribution = await db
-      .select({
-        categoryId: products.categoryId,
-        categoryLabel: categories.label,
-        productCount: count(products.id),
-      })
-      .from(products)
-      .leftJoin(categories, eq(products.categoryId, categories.id))
-      .groupBy(products.categoryId, categories.label);
+      // Category distribution
+      const categoryDistribution = await db
+        .select({
+          categoryId: products.categoryId,
+          categoryLabel: categories.label,
+          productCount: count(products.id),
+        })
+        .from(products)
+        .leftJoin(categories, eq(products.categoryId, categories.id))
+        .groupBy(products.categoryId, categories.label);
 
-    // Recent products
-    const recentProducts = await db
-      .select({
-        id: products.id,
-        name: products.name,
-        category: categories.label,
-        isActive: products.isActive,
-        updatedAt: products.updatedAt,
-      })
-      .from(products)
-      .leftJoin(categories, eq(products.categoryId, categories.id))
-      .orderBy(desc(products.updatedAt))
-      .limit(6);
+      // Recent products
+      const recentProducts = await db
+        .select({
+          id: products.id,
+          name: products.name,
+          category: categories.label,
+          isActive: products.isActive,
+          updatedAt: products.updatedAt,
+        })
+        .from(products)
+        .leftJoin(categories, eq(products.categoryId, categories.id))
+        .orderBy(desc(products.updatedAt))
+        .limit(6);
 
-    return {
-      totalCategories: catCount?.total ?? 0,
-      totalProducts: prodCount?.total ?? 0,
-      activeProducts: activeProdCount?.total ?? 0,
-      inactiveProducts: (prodCount?.total ?? 0) - (activeProdCount?.total ?? 0),
-      totalVariants: variantCount?.total ?? 0,
-      activeVariants: activeVariantCount?.total ?? 0,
-      unavailableVariants:
-        (variantCount?.total ?? 0) - (activeVariantCount?.total ?? 0),
-      totalOffers: offerCount?.total ?? 0,
-      activeOffers: activeOfferCount?.total ?? 0,
-      categoryDistribution: categoryDistribution.map((c) => ({
-        id: c.categoryId,
-        label: c.categoryLabel || c.categoryId,
-        count: Number(c.productCount),
-      })),
-      recentProducts: recentProducts.map((p) => ({
-        ...p,
-        updatedAt: p.updatedAt.toISOString(),
-      })),
-    };
+      if ((prodCount?.total ?? 0) === 0) {
+        throw new Error("Empty DB, fallback to seed");
+      }
+
+      return {
+        totalCategories: catCount?.total ?? 0,
+        totalProducts: prodCount?.total ?? 0,
+        activeProducts: activeProdCount?.total ?? 0,
+        inactiveProducts:
+          (prodCount?.total ?? 0) - (activeProdCount?.total ?? 0),
+        totalVariants: variantCount?.total ?? 0,
+        activeVariants: activeVariantCount?.total ?? 0,
+        unavailableVariants:
+          (variantCount?.total ?? 0) - (activeVariantCount?.total ?? 0),
+        totalOffers: offerCount?.total ?? 0,
+        activeOffers: activeOfferCount?.total ?? 0,
+        categoryDistribution: categoryDistribution.map((c) => ({
+          id: c.categoryId,
+          label: c.categoryLabel || c.categoryId,
+          count: Number(c.productCount),
+        })),
+        recentProducts: recentProducts.map((p) => ({
+          ...p,
+          updatedAt: p.updatedAt.toISOString(),
+        })),
+      };
+    } catch {
+      const allSeedVariants = SEED_PRODUCTS.flatMap((p) => p.variants);
+      return {
+        totalCategories: SEED_CATEGORIES.length,
+        totalProducts: SEED_PRODUCTS.length,
+        activeProducts: SEED_PRODUCTS.filter((p) => p.isActive).length,
+        inactiveProducts: SEED_PRODUCTS.filter((p) => !p.isActive).length,
+        totalVariants: allSeedVariants.length,
+        activeVariants: allSeedVariants.filter((v) => v.isAvailable).length,
+        unavailableVariants: allSeedVariants.filter((v) => !v.isAvailable)
+          .length,
+        totalOffers: 0,
+        activeOffers: 0,
+        categoryDistribution: SEED_CATEGORIES.map((c) => ({
+          id: c.id,
+          label: c.label,
+          count: SEED_PRODUCTS.filter((p) => p.categoryId === c.id).length,
+        })),
+        recentProducts: SEED_PRODUCTS.slice(0, 6).map((p) => ({
+          id: p.id,
+          name: p.name,
+          category:
+            SEED_CATEGORIES.find((c) => c.id === p.categoryId)?.label ||
+            p.categoryId,
+          isActive: p.isActive,
+          updatedAt: new Date().toISOString(),
+        })),
+      };
+    }
   },
 );
 
@@ -139,143 +179,247 @@ export const getAdminProductsFn = createServerFn({ method: "GET" })
   )
   .handler(async ({ data }) => {
     await assertAdminSession();
-    const db = getDb();
+    try {
+      const db = getDb();
 
-    // Query all categories for filter dropdown
-    const allCategories = await db
-      .select({ id: categories.id, label: categories.label })
-      .from(categories)
-      .orderBy(asc(categories.sortOrder));
+      // Query all categories for filter dropdown
+      const allCategories = await db
+        .select({ id: categories.id, label: categories.label })
+        .from(categories)
+        .orderBy(asc(categories.sortOrder));
 
-    // Build product conditions
-    const conditions = [];
-    if (data.categoryId && data.categoryId !== "all") {
-      conditions.push(eq(products.categoryId, data.categoryId));
-    }
-    if (data.activeFilter === "active") {
-      conditions.push(eq(products.isActive, true));
-    } else if (data.activeFilter === "inactive") {
-      conditions.push(eq(products.isActive, false));
-    }
-    if (data.search && data.search.trim()) {
-      const q = `%${data.search.trim()}%`;
-      conditions.push(
-        sql`(${products.name} ILIKE ${q} OR ${products.slug} ILIKE ${q} OR ${products.service} ILIKE ${q})`,
+      // Build product conditions
+      const conditions = [];
+      if (data.categoryId && data.categoryId !== "all") {
+        conditions.push(eq(products.categoryId, data.categoryId));
+      }
+      if (data.activeFilter === "active") {
+        conditions.push(eq(products.isActive, true));
+      } else if (data.activeFilter === "inactive") {
+        conditions.push(eq(products.isActive, false));
+      }
+      if (data.search && data.search.trim()) {
+        const q = `%${data.search.trim()}%`;
+        conditions.push(
+          sql`(${products.name} ILIKE ${q} OR ${products.slug} ILIKE ${q} OR ${products.service} ILIKE ${q})`,
+        );
+      }
+
+      const whereClause =
+        conditions.length > 0 ? and(...conditions) : undefined;
+
+      const prods = await db
+        .select({
+          id: products.id,
+          slug: products.slug,
+          name: products.name,
+          categoryId: products.categoryId,
+          categoryLabel: categories.label,
+          productType: products.productType,
+          service: products.service,
+          description: products.description,
+          platforms: products.platforms,
+          imageUrl: products.imageUrl,
+          accent: products.accent,
+          isActive: products.isActive,
+          isPopular: products.isPopular,
+          sortOrder: products.sortOrder,
+          createdAt: products.createdAt,
+          updatedAt: products.updatedAt,
+        })
+        .from(products)
+        .leftJoin(categories, eq(products.categoryId, categories.id))
+        .where(whereClause)
+        .orderBy(asc(products.sortOrder), desc(products.createdAt));
+
+      if (prods.length === 0 && !data.search && !data.categoryId) {
+        throw new Error("Empty products in DB, fallback to seed");
+      }
+
+      // Get variant counts and price ranges per product
+      const varStats = await db
+        .select({
+          productId: productVariants.productId,
+          count: count(productVariants.id),
+          minPrice: sql<number>`MIN(${productVariants.price})`,
+          maxPrice: sql<number>`MAX(${productVariants.price})`,
+          allAvailable: sql<boolean>`BOOL_AND(${productVariants.isAvailable})`,
+        })
+        .from(productVariants)
+        .groupBy(productVariants.productId);
+
+      const variantStatsMap = new Map(
+        varStats.map((s) => [
+          s.productId,
+          {
+            count: Number(s.count),
+            minPrice: Number(s.minPrice) || 0,
+            maxPrice: Number(s.maxPrice) || 0,
+            allAvailable: Boolean(s.allAvailable),
+          },
+        ]),
       );
-    }
 
-    const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
-
-    const prods = await db
-      .select({
-        id: products.id,
-        slug: products.slug,
-        name: products.name,
-        categoryId: products.categoryId,
-        categoryLabel: categories.label,
-        productType: products.productType,
-        service: products.service,
-        description: products.description,
-        platforms: products.platforms,
-        imageUrl: products.imageUrl,
-        accent: products.accent,
-        isActive: products.isActive,
-        isPopular: products.isPopular,
-        sortOrder: products.sortOrder,
-        createdAt: products.createdAt,
-        updatedAt: products.updatedAt,
-      })
-      .from(products)
-      .leftJoin(categories, eq(products.categoryId, categories.id))
-      .where(whereClause)
-      .orderBy(asc(products.sortOrder), desc(products.createdAt));
-
-    // Get variant counts and price ranges per product
-    const varStats = await db
-      .select({
-        productId: productVariants.productId,
-        count: count(productVariants.id),
-        minPrice: sql<number>`MIN(${productVariants.price})`,
-        maxPrice: sql<number>`MAX(${productVariants.price})`,
-        allAvailable: sql<boolean>`BOOL_AND(${productVariants.isAvailable})`,
-      })
-      .from(productVariants)
-      .groupBy(productVariants.productId);
-
-    const variantStatsMap = new Map(
-      varStats.map((s) => [
-        s.productId,
-        {
-          count: Number(s.count),
-          minPrice: Number(s.minPrice) || 0,
-          maxPrice: Number(s.maxPrice) || 0,
-          allAvailable: Boolean(s.allAvailable),
-        },
-      ]),
-    );
-
-    return {
-      categories: allCategories,
-      products: prods.map((p) => {
-        const vStat = variantStatsMap.get(p.id) || {
-          count: 0,
-          minPrice: 0,
-          maxPrice: 0,
-          allAvailable: true,
-        };
+      return {
+        categories: allCategories,
+        products: prods.map((p) => {
+          const vStat = variantStatsMap.get(p.id) || {
+            count: 0,
+            minPrice: 0,
+            maxPrice: 0,
+            allAvailable: true,
+          };
+          return {
+            ...p,
+            variantCount: vStat.count,
+            minPrice: vStat.minPrice,
+            maxPrice: vStat.maxPrice,
+            allAvailable: vStat.allAvailable,
+            createdAt: p.createdAt.toISOString(),
+            updatedAt: p.updatedAt.toISOString(),
+          };
+        }),
+      };
+    } catch {
+      const allCategories = SEED_CATEGORIES.map((c) => ({
+        id: c.id,
+        label: c.label,
+      }));
+      let filtered = SEED_PRODUCTS.map((p) => {
+        const cat = SEED_CATEGORIES.find((c) => c.id === p.categoryId);
+        const prices = p.variants.map((v) => v.price).filter((pr) => pr > 0);
         return {
-          ...p,
-          variantCount: vStat.count,
-          minPrice: vStat.minPrice,
-          maxPrice: vStat.maxPrice,
-          allAvailable: vStat.allAvailable,
-          createdAt: p.createdAt.toISOString(),
-          updatedAt: p.updatedAt.toISOString(),
+          id: p.id,
+          slug: p.slug,
+          name: p.name,
+          categoryId: p.categoryId,
+          categoryLabel: cat?.label || null,
+          productType: p.productType,
+          service: p.service || null,
+          description: p.description || null,
+          platforms: p.platforms,
+          imageUrl: p.imageUrl || null,
+          accent: p.accent,
+          isActive: p.isActive,
+          isPopular: p.isPopular,
+          sortOrder: p.sortOrder,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          variantCount: p.variants.length,
+          minPrice: prices.length > 0 ? Math.min(...prices) : 0,
+          maxPrice: prices.length > 0 ? Math.max(...prices) : 0,
+          allAvailable: p.variants.every((v) => v.isAvailable),
         };
-      }),
-    };
+      });
+
+      if (data.categoryId && data.categoryId !== "all") {
+        filtered = filtered.filter((p) => p.categoryId === data.categoryId);
+      }
+      if (data.activeFilter === "active") {
+        filtered = filtered.filter((p) => p.isActive);
+      } else if (data.activeFilter === "inactive") {
+        filtered = filtered.filter((p) => !p.isActive);
+      }
+      if (data.search && data.search.trim()) {
+        const q = data.search.trim().toLowerCase();
+        filtered = filtered.filter(
+          (p) =>
+            p.name.toLowerCase().includes(q) ||
+            p.slug.toLowerCase().includes(q) ||
+            (p.service && p.service.toLowerCase().includes(q)),
+        );
+      }
+
+      return {
+        categories: allCategories,
+        products: filtered,
+      };
+    }
   });
 
 export const getAdminProductDetailsFn = createServerFn({ method: "GET" })
   .validator(z.object({ id: z.string().min(1) }))
   .handler(async ({ data }) => {
     await assertAdminSession();
-    const db = getDb();
+    try {
+      const db = getDb();
 
-    const [prod] = await db
-      .select()
-      .from(products)
-      .where(eq(products.id, data.id))
-      .limit(1);
+      const [prod] = await db
+        .select()
+        .from(products)
+        .where(eq(products.id, data.id))
+        .limit(1);
 
-    if (!prod) {
-      throw new Error("المنتج غير موجود.");
+      if (!prod) {
+        throw new Error("المنتج غير موجود.");
+      }
+
+      const prodVariants = await db
+        .select()
+        .from(productVariants)
+        .where(eq(productVariants.productId, data.id))
+        .orderBy(asc(productVariants.sortOrder), asc(productVariants.price));
+
+      const allCategories = await db
+        .select({ id: categories.id, label: categories.label })
+        .from(categories)
+        .orderBy(asc(categories.sortOrder));
+
+      return {
+        product: {
+          ...prod,
+          createdAt: prod.createdAt.toISOString(),
+          updatedAt: prod.updatedAt.toISOString(),
+        },
+        variants: prodVariants.map((v) => ({
+          ...v,
+          createdAt: v.createdAt.toISOString(),
+          updatedAt: v.updatedAt.toISOString(),
+        })),
+        categories: allCategories,
+      };
+    } catch {
+      const seedProd = SEED_PRODUCTS.find((p) => p.id === data.id);
+      if (!seedProd) {
+        throw new Error("المنتج غير موجود.");
+      }
+      return {
+        product: {
+          id: seedProd.id,
+          slug: seedProd.slug,
+          name: seedProd.name,
+          categoryId: seedProd.categoryId,
+          productType: seedProd.productType,
+          service: seedProd.service || null,
+          description: seedProd.description || null,
+          platforms: seedProd.platforms,
+          imageUrl: seedProd.imageUrl || null,
+          accent: seedProd.accent,
+          isActive: seedProd.isActive,
+          isPopular: seedProd.isPopular,
+          sortOrder: seedProd.sortOrder,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        },
+        variants: seedProd.variants.map((v) => ({
+          id: v.id,
+          productId: seedProd.id,
+          edition: v.edition || null,
+          duration: v.duration || null,
+          accountSlot: v.accountSlot || null,
+          denomination: v.denomination || null,
+          price: v.price,
+          isAvailable: v.isAvailable,
+          sortOrder: v.sortOrder,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        })),
+        categories: SEED_CATEGORIES.map((c) => ({
+          id: c.id,
+          label: c.label,
+        })),
+      };
     }
-
-    const prodVariants = await db
-      .select()
-      .from(productVariants)
-      .where(eq(productVariants.productId, data.id))
-      .orderBy(asc(productVariants.sortOrder), asc(productVariants.price));
-
-    const allCategories = await db
-      .select({ id: categories.id, label: categories.label })
-      .from(categories)
-      .orderBy(asc(categories.sortOrder));
-
-    return {
-      product: {
-        ...prod,
-        createdAt: prod.createdAt.toISOString(),
-        updatedAt: prod.updatedAt.toISOString(),
-      },
-      variants: prodVariants.map((v) => ({
-        ...v,
-        createdAt: v.createdAt.toISOString(),
-        updatedAt: v.updatedAt.toISOString(),
-      })),
-      categories: allCategories,
-    };
   });
 
 export const createProductFn = createServerFn({ method: "POST" })
@@ -667,38 +811,51 @@ export const uploadProductImageFn = createServerFn({ method: "POST" })
 export const getAdminCategoriesFn = createServerFn({ method: "GET" }).handler(
   async () => {
     await assertAdminSession();
-    const db = getDb();
+    try {
+      const db = getDb();
 
-    const cats = await db
-      .select({
-        id: categories.id,
-        label: categories.label,
-        sortOrder: categories.sortOrder,
-        isActive: categories.isActive,
-        createdAt: categories.createdAt,
-        updatedAt: categories.updatedAt,
-      })
-      .from(categories)
-      .orderBy(asc(categories.sortOrder));
+      const cats = await db
+        .select({
+          id: categories.id,
+          label: categories.label,
+          sortOrder: categories.sortOrder,
+          isActive: categories.isActive,
+          createdAt: categories.createdAt,
+          updatedAt: categories.updatedAt,
+        })
+        .from(categories)
+        .orderBy(asc(categories.sortOrder));
 
-    const prodCounts = await db
-      .select({
-        categoryId: products.categoryId,
-        count: count(products.id),
-      })
-      .from(products)
-      .groupBy(products.categoryId);
+      if (cats.length === 0) {
+        throw new Error("Empty categories in DB, fallback to seed");
+      }
 
-    const countMap = new Map(
-      prodCounts.map((c) => [c.categoryId, Number(c.count)]),
-    );
+      const prodCounts = await db
+        .select({
+          categoryId: products.categoryId,
+          count: count(products.id),
+        })
+        .from(products)
+        .groupBy(products.categoryId);
 
-    return cats.map((c) => ({
-      ...c,
-      productCount: countMap.get(c.id) || 0,
-      createdAt: c.createdAt.toISOString(),
-      updatedAt: c.updatedAt.toISOString(),
-    }));
+      const countMap = new Map(
+        prodCounts.map((c) => [c.categoryId, Number(c.count)]),
+      );
+
+      return cats.map((c) => ({
+        ...c,
+        productCount: countMap.get(c.id) || 0,
+        createdAt: c.createdAt.toISOString(),
+        updatedAt: c.updatedAt.toISOString(),
+      }));
+    } catch {
+      return SEED_CATEGORIES.map((c) => ({
+        ...c,
+        productCount: SEED_PRODUCTS.filter((p) => p.categoryId === c.id).length,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      }));
+    }
   },
 );
 
@@ -816,47 +973,54 @@ export const deleteCategoryFn = createServerFn({ method: "POST" })
 export const getAdminOffersFn = createServerFn({ method: "GET" }).handler(
   async () => {
     await assertAdminSession();
-    const db = getDb();
+    try {
+      const db = getDb();
 
-    const offerList = await db
-      .select({
-        id: offers.id,
-        productId: offers.productId,
-        productName: products.name,
-        title: offers.title,
-        subtitle: offers.subtitle,
-        badge: offers.badge,
-        discountPrice: offers.discountPrice,
-        originalPrice: offers.originalPrice,
-        imageUrl: offers.imageUrl,
-        accent: offers.accent,
-        isActive: offers.isActive,
-        validUntil: offers.validUntil,
-        sortOrder: offers.sortOrder,
-        createdAt: offers.createdAt,
-        updatedAt: offers.updatedAt,
-      })
-      .from(offers)
-      .leftJoin(products, eq(offers.productId, products.id))
-      .orderBy(asc(offers.sortOrder), desc(offers.createdAt));
+      const offerList = await db
+        .select({
+          id: offers.id,
+          productId: offers.productId,
+          productName: products.name,
+          title: offers.title,
+          subtitle: offers.subtitle,
+          badge: offers.badge,
+          discountPrice: offers.discountPrice,
+          originalPrice: offers.originalPrice,
+          imageUrl: offers.imageUrl,
+          accent: offers.accent,
+          isActive: offers.isActive,
+          validUntil: offers.validUntil,
+          sortOrder: offers.sortOrder,
+          createdAt: offers.createdAt,
+          updatedAt: offers.updatedAt,
+        })
+        .from(offers)
+        .leftJoin(products, eq(offers.productId, products.id))
+        .orderBy(asc(offers.sortOrder), desc(offers.createdAt));
 
-    const prods = await db
-      .select({ id: products.id, name: products.name })
-      .from(products)
-      .orderBy(asc(products.name));
+      const prods = await db
+        .select({ id: products.id, name: products.name })
+        .from(products)
+        .orderBy(asc(products.name));
 
-    const now = new Date();
+      const now = new Date();
 
-    return {
-      offers: offerList.map((o) => ({
-        ...o,
-        isExpired: Boolean(o.validUntil && o.validUntil < now),
-        validUntil: o.validUntil ? o.validUntil.toISOString() : null,
-        createdAt: o.createdAt.toISOString(),
-        updatedAt: o.updatedAt.toISOString(),
-      })),
-      products: prods,
-    };
+      return {
+        offers: offerList.map((o) => ({
+          ...o,
+          isExpired: Boolean(o.validUntil && o.validUntil < now),
+          validUntil: o.validUntil ? o.validUntil.toISOString() : null,
+          createdAt: o.createdAt.toISOString(),
+          updatedAt: o.updatedAt.toISOString(),
+        })),
+        products: prods,
+      };
+    } catch {
+      return {
+        offers: [],
+        products: SEED_PRODUCTS.map((p) => ({ id: p.id, name: p.name })),
+      };
+    }
   },
 );
 
@@ -1079,36 +1243,56 @@ export const toggleOfferActiveFn = createServerFn({ method: "POST" })
 export const getAdminSettingsFn = createServerFn({ method: "GET" }).handler(
   async () => {
     await assertAdminSession();
-    const db = getDb();
+    try {
+      const db = getDb();
 
-    const all = await db.select().from(storeSettings);
-    const map: Record<string, unknown> = {};
-    for (const s of all) {
-      map[s.key] = s.value;
+      const all = await db.select().from(storeSettings);
+      const map: Record<string, unknown> = {};
+      for (const s of all) {
+        map[s.key] = s.value;
+      }
+
+      return {
+        contactInfo: (map.contact_info as Record<string, string>) || {
+          primary_whatsapp: "201109664083",
+          display_order_number: "01109664083",
+          display_payment_number: "01014956483",
+          support_hours: "24/7",
+        },
+        paymentAccounts: (map.payment_accounts as Record<string, string>) || {
+          vodafone_cash: "01109664083",
+          instapay: "01014956483",
+          telda: "@flix90",
+        },
+        announcement: (map.announcement as {
+          active: boolean;
+          text: string;
+          badge?: string;
+          link?: string;
+        }) || {
+          active: false,
+          text: "",
+        },
+      };
+    } catch {
+      return {
+        contactInfo: {
+          primary_whatsapp: "201109664083",
+          display_order_number: "01109664083",
+          display_payment_number: "01014956483",
+          support_hours: "24/7",
+        },
+        paymentAccounts: {
+          vodafone_cash: "01109664083",
+          instapay: "01014956483",
+          telda: "@flix90",
+        },
+        announcement: {
+          active: false,
+          text: "",
+        },
+      };
     }
-
-    return {
-      contactInfo: (map.contact_info as Record<string, string>) || {
-        primary_whatsapp: "201109664083",
-        display_order_number: "01109664083",
-        display_payment_number: "01014956483",
-        support_hours: "24/7",
-      },
-      paymentAccounts: (map.payment_accounts as Record<string, string>) || {
-        vodafone_cash: "01109664083",
-        instapay: "01014956483",
-        telda: "@flix90",
-      },
-      announcement: (map.announcement as {
-        active: boolean;
-        text: string;
-        badge?: string;
-        link?: string;
-      }) || {
-        active: false,
-        text: "",
-      },
-    };
   },
 );
 

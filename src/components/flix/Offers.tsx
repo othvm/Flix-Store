@@ -438,9 +438,15 @@ export function Offers({
   const gameList = (games ?? []) as unknown as Game[];
 
   const filteredGames = searchQuery.trim()
-    ? gameList.filter((g) =>
-        g.name.toLowerCase().includes(searchQuery.toLowerCase()),
-      )
+    ? gameList.filter((g) => {
+        const q = searchQuery.toLowerCase().trim();
+        return (
+          g.name.toLowerCase().includes(q) ||
+          g.slug.toLowerCase().includes(q) ||
+          (q.includes("gta") &&
+            g.name.toLowerCase().includes("grand theft auto"))
+        );
+      })
     : gameList;
 
   const startBuy = (
