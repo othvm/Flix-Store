@@ -114,9 +114,49 @@ export const adminLoginAttempts = pgTable("admin_login_attempts", {
   lastAttempt: timestamp("last_attempt").notNull().defaultNow(),
 });
 
+/**
+ * 8. User Profiles
+ * Customer and admin profile records linked to auth.users.
+ */
+export const profiles = pgTable("profiles", {
+  id: uuid("id").primaryKey(),
+  role: text("role").notNull().default("customer"), // 'admin' | 'customer'
+  email: text("email"),
+  fullName: text("full_name"),
+  phone: text("phone"),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+/**
+ * 9. Orders
+ * Digital storefront order records.
+ */
+export const orders = pgTable("orders", {
+  id: text("id").primaryKey(), // 'FL-xxxxxx'
+  customerId: uuid("customer_id").references(() => profiles.id, { onDelete: "set null" }),
+  customerName: text("customer_name").notNull(),
+  customerPhone: text("customer_phone").notNull(),
+  productName: text("product_name").notNull(),
+  productType: text("product_type"),
+  edition: text("edition"),
+  duration: text("duration"),
+  accountSlot: text("account_slot"),
+  platform: text("platform"),
+  price: integer("price").notNull(),
+  paymentMethod: text("payment_method").notNull(), // 'vodafone' | 'instapay' | 'telda'
+  receiptUrl: text("receipt_url"),
+  status: text("status").notNull().default("pending"), // 'pending' | 'confirmed' | 'completed' | 'cancelled'
+  notes: text("notes"),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
 export type Category = typeof categories.$inferSelect;
 export type Product = typeof products.$inferSelect;
 export type ProductVariant = typeof productVariants.$inferSelect;
 export type Offer = typeof offers.$inferSelect;
 export type StoreSetting = typeof storeSettings.$inferSelect;
 export type AdminSession = typeof adminSessions.$inferSelect;
+export type Profile = typeof profiles.$inferSelect;
+export type Order = typeof orders.$inferSelect;
