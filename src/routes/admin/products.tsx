@@ -43,9 +43,7 @@ export const Route = createFileRoute("/admin/products")({
   component: AdminProductsPage,
 });
 
-type ProductItem = Awaited<
-  ReturnType<typeof getAdminProductsFn>
->["products"][number];
+type ProductItem = Awaited<ReturnType<typeof getAdminProductsFn>>["products"][number];
 
 function AdminProductsPage() {
   const router = useRouter();
@@ -54,20 +52,13 @@ function AdminProductsPage() {
   // Search & filter states
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
-  const [activeFilter, setActiveFilter] = useState<
-    "all" | "active" | "inactive"
-  >("all");
+  const [activeFilter, setActiveFilter] = useState<"all" | "active" | "inactive">("all");
 
   // Modals state
   const [showAddModal, setShowAddModal] = useState(false);
-  const [editingProduct, setEditingProduct] = useState<ProductItem | null>(
-    null,
-  );
-  const [deletingProduct, setDeletingProduct] = useState<ProductItem | null>(
-    null,
-  );
-  const [managingVariantsProduct, setManagingVariantsProduct] =
-    useState<ProductItem | null>(null);
+  const [editingProduct, setEditingProduct] = useState<ProductItem | null>(null);
+  const [deletingProduct, setDeletingProduct] = useState<ProductItem | null>(null);
+  const [managingVariantsProduct, setManagingVariantsProduct] = useState<ProductItem | null>(null);
 
   // Loading states
   const [submitting, setSubmitting] = useState(false);
@@ -117,9 +108,7 @@ function AdminProductsPage() {
       await router.invalidate();
       setDeletingProduct(null);
     } catch (err) {
-      setActionError(
-        err instanceof Error ? err.message : "حدث خطأ أثناء حذف المنتج.",
-      );
+      setActionError(err instanceof Error ? err.message : "حدث خطأ أثناء حذف المنتج.");
     } finally {
       setSubmitting(false);
     }
@@ -134,8 +123,7 @@ function AdminProductsPage() {
             إدارة <span className="text-red-500">المنتجات والأسعار</span>
           </h1>
           <p className="mt-1 text-xs sm:text-sm text-zinc-400">
-            تحكم بكتالوج الألعاب، اشتراكات PS Plus، فئات البطاقات والأسعار
-            المتاحة على المتجر
+            تحكم بكتالوج الألعاب، اشتراكات PS Plus، فئات البطاقات والأسعار المتاحة على المتجر
           </p>
         </div>
         <button
@@ -171,9 +159,7 @@ function AdminProductsPage() {
             onChange={(e) => setSelectedCategory(e.target.value)}
             className="rounded-lg border border-zinc-800 bg-zinc-950/80 px-3 py-2 text-xs sm:text-sm text-zinc-300 focus:outline-none focus:border-red-500 transition cursor-pointer"
           >
-            <option value="all">
-              جميع الأقسام ({initialData.products.length})
-            </option>
+            <option value="all">جميع الأقسام ({initialData.products.length})</option>
             {initialData.categories.map((cat) => (
               <option key={cat.id} value={cat.id}>
                 {cat.label}
@@ -184,9 +170,7 @@ function AdminProductsPage() {
           {/* Active Status Filter */}
           <select
             value={activeFilter}
-            onChange={(e) =>
-              setActiveFilter(e.target.value as "all" | "active" | "inactive")
-            }
+            onChange={(e) => setActiveFilter(e.target.value as "all" | "active" | "inactive")}
             className="rounded-lg border border-zinc-800 bg-zinc-950/80 px-3 py-2 text-xs sm:text-sm text-zinc-300 focus:outline-none focus:border-red-500 transition cursor-pointer"
           >
             <option value="all">كل الحالات</option>
@@ -199,8 +183,7 @@ function AdminProductsPage() {
       {/* Products Count Indicator */}
       <div className="flex items-center justify-between text-xs text-zinc-400 px-1">
         <span>
-          عرض {filteredProducts.length} من أصل {initialData.products.length}{" "}
-          منتج
+          عرض {filteredProducts.length} من أصل {initialData.products.length} منتج
         </span>
       </div>
 
@@ -208,12 +191,8 @@ function AdminProductsPage() {
       {filteredProducts.length === 0 ? (
         <div className="rounded-2xl border border-zinc-800/80 bg-zinc-950/60 p-12 text-center">
           <Package className="w-10 h-10 text-zinc-600 mx-auto mb-3" />
-          <h3 className="text-sm font-semibold text-white mb-1">
-            لا توجد منتجات مطابقة للبحث
-          </h3>
-          <p className="text-xs text-zinc-500">
-            جرب تعديل كلمة البحث أو فلتر القسم المختار.
-          </p>
+          <h3 className="text-sm font-semibold text-white mb-1">لا توجد منتجات مطابقة للبحث</h3>
+          <p className="text-xs text-zinc-500">جرب تعديل كلمة البحث أو فلتر القسم المختار.</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -244,19 +223,12 @@ function AdminProductsPage() {
 
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center justify-between gap-1">
-                      <h3
-                        className="font-semibold text-white text-sm truncate"
-                        title={p.name}
-                      >
+                      <h3 className="font-semibold text-white text-sm truncate" title={p.name}>
                         {p.name}
                       </h3>
                       <button
                         onClick={() => handleToggleActive(p.id, p.isActive)}
-                        title={
-                          p.isActive
-                            ? "تعطيل العرض على المتجر"
-                            : "تفعيل العرض على المتجر"
-                        }
+                        title={p.isActive ? "تعطيل العرض على المتجر" : "تفعيل العرض على المتجر"}
                         className={`px-2 py-0.5 rounded-full text-[10px] font-medium transition cursor-pointer ${
                           p.isActive
                             ? "bg-emerald-950/60 text-emerald-400 border border-emerald-900/40"
@@ -268,13 +240,9 @@ function AdminProductsPage() {
                     </div>
 
                     <div className="flex items-center gap-2 mt-1 text-[11px] text-zinc-400">
-                      <span className="truncate">
-                        {p.categoryLabel || p.categoryId}
-                      </span>
+                      <span className="truncate">{p.categoryLabel || p.categoryId}</span>
                       <span>•</span>
-                      <span className="font-mono text-zinc-500 text-[10px] truncate">
-                        {p.slug}
-                      </span>
+                      <span className="font-mono text-zinc-500 text-[10px] truncate">{p.slug}</span>
                     </div>
 
                     {/* Platforms Badges */}
@@ -316,9 +284,7 @@ function AdminProductsPage() {
                         </span>
                       )
                     ) : (
-                      <span className="text-zinc-500 font-normal">
-                        لا توجد باقات
-                      </span>
+                      <span className="text-zinc-500 font-normal">لا توجد باقات</span>
                     )}
                   </div>
                 </div>
@@ -407,16 +373,13 @@ function AdminProductsPage() {
           <div className="w-full max-w-md rounded-2xl border border-zinc-800 bg-zinc-950 p-6 shadow-2xl space-y-4">
             <div className="flex items-center gap-3 text-red-500">
               <AlertCircle className="w-6 h-6 shrink-0" />
-              <h3 className="text-base font-bold text-white">
-                تأكيد حذف المنتج
-              </h3>
+              <h3 className="text-base font-bold text-white">تأكيد حذف المنتج</h3>
             </div>
 
             <p className="text-xs text-zinc-400 leading-relaxed">
               هل أنت متأكد من رغبتك في حذف المنتج{" "}
-              <strong className="text-white">"{deletingProduct.name}"</strong>؟
-              سيؤدي هذا إلى حذف جميع باقات الأسعار المرتبطة به (
-              {deletingProduct.variantCount} باقة) وصورته المخزنة.
+              <strong className="text-white">"{deletingProduct.name}"</strong>؟ سيؤدي هذا إلى حذف
+              جميع باقات الأسعار المرتبطة به ({deletingProduct.variantCount} باقة) وصورته المخزنة.
             </p>
 
             {actionError && (
@@ -470,25 +433,15 @@ function ProductFormModal({
 }) {
   const [name, setName] = useState(product?.name || "");
   const [slug, setSlug] = useState(product?.slug || product?.id || "");
-  const [categoryId, setCategoryId] = useState(
-    product?.categoryId || categories[0]?.id || "games",
-  );
-  const [productType, setProductType] = useState(
-    product?.productType || "game",
-  );
+  const [categoryId, setCategoryId] = useState(product?.categoryId || categories[0]?.id || "games");
+  const [productType, setProductType] = useState(product?.productType || "game");
   const [service, setService] = useState(product?.service || "");
   const [description, setDescription] = useState(product?.description || "");
-  const [platforms, setPlatforms] = useState<string[]>(
-    product?.platforms || ["PS4", "PS5"],
-  );
+  const [platforms, setPlatforms] = useState<string[]>(product?.platforms || ["PS4", "PS5"]);
   const [imageUrl, setImageUrl] = useState<string>(product?.imageUrl || "");
-  const [accent, setAccent] = useState(
-    product?.accent || "from-red-700 via-zinc-900 to-black",
-  );
+  const [accent, setAccent] = useState(product?.accent || "from-red-700 via-zinc-900 to-black");
   const [isActive, setIsActive] = useState<boolean>(product?.isActive ?? true);
-  const [isPopular, setIsPopular] = useState<boolean>(
-    product?.isPopular ?? false,
-  );
+  const [isPopular, setIsPopular] = useState<boolean>(product?.isPopular ?? false);
   const [sortOrder, setSortOrder] = useState<number>(product?.sortOrder ?? 0);
 
   const [uploading, setUploading] = useState(false);
@@ -517,9 +470,7 @@ function ProductFormModal({
     }
   };
 
-  const handleImageFileChange = async (
-    e: React.ChangeEvent<HTMLInputElement>,
-  ) => {
+  const handleImageFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -556,11 +507,7 @@ function ProductFormModal({
 
       setImageUrl(uploadRes.publicUrl);
     } catch (err) {
-      setError(
-        err instanceof Error
-          ? err.message
-          : "فشل رفع الصورة إلى Supabase Storage.",
-      );
+      setError(err instanceof Error ? err.message : "فشل رفع الصورة إلى Supabase Storage.");
     } finally {
       setUploading(false);
     }
@@ -580,8 +527,7 @@ function ProductFormModal({
             id: product.id,
             name: name.trim(),
             categoryId,
-            productType: productType as
-              "game" | "ps_plus" | "gift_card" | "subscription",
+            productType: productType as "game" | "ps_plus" | "gift_card" | "subscription",
             service: service.trim() || null,
             description: description.trim() || null,
             platforms,
@@ -598,8 +544,7 @@ function ProductFormModal({
             id: slug.trim(),
             name: name.trim(),
             categoryId,
-            productType: productType as
-              "game" | "ps_plus" | "gift_card" | "subscription",
+            productType: productType as "game" | "ps_plus" | "gift_card" | "subscription",
             service: service.trim() || null,
             description: description.trim() || null,
             platforms,
@@ -614,9 +559,7 @@ function ProductFormModal({
 
       await onSuccess();
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "حدث خطأ أثناء حفظ المنتج.",
-      );
+      setError(err instanceof Error ? err.message : "حدث خطأ أثناء حفظ المنتج.");
     } finally {
       setSubmitting(false);
     }
@@ -682,9 +625,7 @@ function ProductFormModal({
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             {/* Category */}
             <div>
-              <label className="block text-xs font-medium text-zinc-300 mb-1.5">
-                القسم *
-              </label>
+              <label className="block text-xs font-medium text-zinc-300 mb-1.5">القسم *</label>
               <select
                 value={categoryId}
                 onChange={(e) => setCategoryId(e.target.value)}
@@ -700,9 +641,7 @@ function ProductFormModal({
 
             {/* Product Type */}
             <div>
-              <label className="block text-xs font-medium text-zinc-300 mb-1.5">
-                نوع المنتج *
-              </label>
+              <label className="block text-xs font-medium text-zinc-300 mb-1.5">نوع المنتج *</label>
               <select
                 value={productType}
                 onChange={(e) => setProductType(e.target.value)}
@@ -710,9 +649,7 @@ function ProductFormModal({
               >
                 <option value="game">لعبة (PS4 / PS5)</option>
                 <option value="ps_plus">PlayStation Plus</option>
-                <option value="subscription">
-                  اشتراك رقمي (ستريمينج / موسيقى)
-                </option>
+                <option value="subscription">اشتراك رقمي (ستريمينج / موسيقى)</option>
                 <option value="gift_card">بطاقة هدايا ورصيد</option>
               </select>
             </div>
@@ -767,11 +704,7 @@ function ProductFormModal({
             <div className="flex items-center gap-4">
               <div className="w-20 h-20 rounded-xl border border-zinc-800 bg-zinc-900/80 overflow-hidden shrink-0 flex items-center justify-center relative">
                 {imageUrl ? (
-                  <img
-                    src={imageUrl}
-                    alt="Preview"
-                    className="w-full h-full object-cover"
-                  />
+                  <img src={imageUrl} alt="Preview" className="w-full h-full object-cover" />
                 ) : (
                   <ImageIcon className="w-8 h-8 text-zinc-600" />
                 )}
@@ -797,9 +730,7 @@ function ProductFormModal({
                   className="flex items-center gap-2 px-3 py-2 rounded-xl border border-zinc-800 bg-zinc-900 hover:bg-zinc-800 text-xs text-white transition cursor-pointer disabled:opacity-50"
                 >
                   <Upload className="w-3.5 h-3.5" />
-                  <span>
-                    {uploading ? "جاري الرفع..." : "اختر صورة من الجهاز"}
-                  </span>
+                  <span>{uploading ? "جاري الرفع..." : "اختر صورة من الجهاز"}</span>
                 </button>
 
                 <input
@@ -851,9 +782,7 @@ function ProductFormModal({
             </label>
 
             <div className="flex items-center gap-2">
-              <span className="text-xs text-zinc-400 whitespace-nowrap">
-                الترتيب:
-              </span>
+              <span className="text-xs text-zinc-400 whitespace-nowrap">الترتيب:</span>
               <input
                 type="number"
                 value={sortOrder}
@@ -892,9 +821,7 @@ function ProductFormModal({
    SUB-COMPONENT: ManageVariantsModal (Add, Edit, Delete Prices & Slots)
    ========================================================================= */
 
-type VariantItem = Awaited<
-  ReturnType<typeof getAdminProductDetailsFn>
->["variants"][number];
+type VariantItem = Awaited<ReturnType<typeof getAdminProductDetailsFn>>["variants"][number];
 
 function ManageVariantsModal({
   product,
@@ -1048,8 +975,7 @@ function ManageVariantsModal({
         <div className="flex items-center justify-between pb-4 border-b border-zinc-800/80">
           <div>
             <h2 className="text-lg font-bold text-white font-display">
-              إدارة الأسعار والباقات —{" "}
-              <span className="text-red-500">{product.name}</span>
+              إدارة الأسعار والباقات — <span className="text-red-500">{product.name}</span>
             </h2>
             <p className="text-xs text-zinc-400 mt-0.5">
               حدد الأسعار حسب الحساب (Prim5 / Prim4 / Sec) أو المدة أو الفئة
@@ -1086,8 +1012,7 @@ function ManageVariantsModal({
             </div>
           ) : variants.length === 0 ? (
             <div className="p-8 text-center text-zinc-500 text-xs">
-              لا توجد باقات أو أسعار مسجلة لهذا المنتج بعد. أضف باقة جديدة
-              بالأسفل.
+              لا توجد باقات أو أسعار مسجلة لهذا المنتج بعد. أضف باقة جديدة بالأسفل.
             </div>
           ) : (
             <div className="divide-y divide-zinc-800/60 max-h-72 overflow-y-auto">
@@ -1115,12 +1040,9 @@ function ManageVariantsModal({
 
                         <input
                           type="text"
-                          value={
-                            editDuration || editEdition || editDenomination
-                          }
+                          value={editDuration || editEdition || editDenomination}
                           onChange={(e) => {
-                            if (v.denomination)
-                              setEditDenomination(e.target.value);
+                            if (v.denomination) setEditDenomination(e.target.value);
                             else if (v.edition) setEditEdition(e.target.value);
                             else setEditDuration(e.target.value);
                           }}
@@ -1132,9 +1054,7 @@ function ManageVariantsModal({
                           <input
                             type="number"
                             value={editPrice}
-                            onChange={(e) =>
-                              setEditPrice(Number(e.target.value))
-                            }
+                            onChange={(e) => setEditPrice(Number(e.target.value))}
                             className="w-24 rounded border border-zinc-700 bg-zinc-900 px-2 py-1 text-xs text-white font-mono"
                           />
                           <span className="text-zinc-500">ج.م</span>
@@ -1167,19 +1087,13 @@ function ManageVariantsModal({
                             </span>
                           )}
                           {v.edition && (
-                            <span className="text-zinc-300 font-medium">
-                              {v.edition}
-                            </span>
+                            <span className="text-zinc-300 font-medium">{v.edition}</span>
                           )}
                           {v.duration && (
-                            <span className="text-zinc-400 text-[11px]">
-                              ({v.duration})
-                            </span>
+                            <span className="text-zinc-400 text-[11px]">({v.duration})</span>
                           )}
                           {v.denomination && (
-                            <span className="text-blue-400 font-medium">
-                              {v.denomination}
-                            </span>
+                            <span className="text-blue-400 font-medium">{v.denomination}</span>
                           )}
                         </div>
 
@@ -1190,9 +1104,7 @@ function ManageVariantsModal({
 
                           <button
                             type="button"
-                            onClick={() =>
-                              handleToggleAvailable(v.id, v.isAvailable)
-                            }
+                            onClick={() => handleToggleAvailable(v.id, v.isAvailable)}
                             className={`px-2 py-0.5 rounded-full text-[10px] font-medium transition cursor-pointer ${
                               v.isAvailable
                                 ? "bg-emerald-950/60 text-emerald-400 border border-emerald-900/40"
@@ -1241,12 +1153,9 @@ function ManageVariantsModal({
 
           <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
             {/* Slot selector for games or PS Plus */}
-            {(product.productType === "game" ||
-              product.productType === "ps_plus") && (
+            {(product.productType === "game" || product.productType === "ps_plus") && (
               <div>
-                <label className="block text-[11px] text-zinc-400 mb-1">
-                  نوع الحساب
-                </label>
+                <label className="block text-[11px] text-zinc-400 mb-1">نوع الحساب</label>
                 <select
                   value={accountSlot}
                   onChange={(e) => setAccountSlot(e.target.value)}
@@ -1261,9 +1170,7 @@ function ManageVariantsModal({
 
             {/* Edition (GTA 6 Ultimate, PS Plus Essential, etc.) */}
             <div>
-              <label className="block text-[11px] text-zinc-400 mb-1">
-                النسخة / الفئة
-              </label>
+              <label className="block text-[11px] text-zinc-400 mb-1">النسخة / الفئة</label>
               <input
                 type="text"
                 value={edition}
@@ -1275,33 +1182,22 @@ function ManageVariantsModal({
 
             {/* Duration / Denomination */}
             <div>
-              <label className="block text-[11px] text-zinc-400 mb-1">
-                المدة أو القيمة
-              </label>
+              <label className="block text-[11px] text-zinc-400 mb-1">المدة أو القيمة</label>
               <input
                 type="text"
-                value={
-                  product.productType === "gift_card" ? denomination : duration
-                }
+                value={product.productType === "gift_card" ? denomination : duration}
                 onChange={(e) => {
-                  if (product.productType === "gift_card")
-                    setDenomination(e.target.value);
+                  if (product.productType === "gift_card") setDenomination(e.target.value);
                   else setDuration(e.target.value);
                 }}
-                placeholder={
-                  product.productType === "gift_card"
-                    ? "مثال: 50 $"
-                    : "شهر، سنة..."
-                }
+                placeholder={product.productType === "gift_card" ? "مثال: 50 $" : "شهر، سنة..."}
                 className="w-full rounded-lg border border-zinc-800 bg-zinc-950 px-2.5 py-1.5 text-xs text-white"
               />
             </div>
 
             {/* Price (EGP) */}
             <div>
-              <label className="block text-[11px] text-zinc-400 mb-1">
-                السعر (جنيه مصري) *
-              </label>
+              <label className="block text-[11px] text-zinc-400 mb-1">السعر (جنيه مصري) *</label>
               <input
                 type="number"
                 required
@@ -1329,9 +1225,7 @@ function ManageVariantsModal({
               disabled={addingVariant}
               className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg bg-red-600 hover:bg-red-500 text-xs font-semibold text-white transition cursor-pointer disabled:opacity-50"
             >
-              {addingVariant && (
-                <Loader2 className="w-3.5 h-3.5 animate-spin" />
-              )}
+              {addingVariant && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
               <span>إضافة السعر</span>
             </button>
           </div>

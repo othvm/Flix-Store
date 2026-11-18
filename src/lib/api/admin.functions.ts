@@ -9,19 +9,9 @@ import {
 } from "../auth.server";
 import { uploadCatalogImage, safeDeleteOldImage } from "../storage.server";
 import { getDb } from "@/db";
-import {
-  categories,
-  products,
-  productVariants,
-  offers,
-  storeSettings,
-} from "@/db/schema";
+import { categories, products, productVariants, offers, storeSettings } from "@/db/schema";
 import { count, eq, and, sql, desc, asc } from "drizzle-orm";
-import {
-  SEED_CATEGORIES,
-  SEED_PRODUCTS,
-  SEED_STORE_SETTINGS,
-} from "@/db/seed-data";
+import { SEED_CATEGORIES, SEED_PRODUCTS, SEED_STORE_SETTINGS } from "@/db/seed-data";
 
 /* =========================================================================
    1. AUTHENTICATION SERVER FUNCTIONS
@@ -37,133 +27,120 @@ export const loginAdminFn = createServerFn({ method: "POST" })
     return await authenticateAdmin(data.code);
   });
 
-export const checkAdminAuthFn = createServerFn({ method: "GET" }).handler(
-  async () => {
-    const session = await getAdminSession();
-    return {
-      authenticated: Boolean(session),
-      expiresAt: session?.expiresAt ? session.expiresAt.toISOString() : null,
-    };
-  },
-);
+export const checkAdminAuthFn = createServerFn({ method: "GET" }).handler(async () => {
+  const session = await getAdminSession();
+  return {
+    authenticated: Boolean(session),
+    expiresAt: session?.expiresAt ? session.expiresAt.toISOString() : null,
+  };
+});
 
-export const logoutAdminFn = createServerFn({ method: "POST" }).handler(
-  async () => {
-    return await logoutAdmin();
-  },
-);
+export const logoutAdminFn = createServerFn({ method: "POST" }).handler(async () => {
+  return await logoutAdmin();
+});
 
 /* =========================================================================
    2. DASHBOARD OVERVIEW METRICS
    ========================================================================= */
 
-export const getAdminOverviewFn = createServerFn({ method: "GET" }).handler(
-  async () => {
-    await assertAdminSession();
-    try {
-      const db = getDb();
+export const getAdminOverviewFn = createServerFn({ method: "GET" }).handler(async () => {
+  await assertAdminSession();
+  try {
+    const db = getDb();
 
-      const [catCount] = await db.select({ total: count() }).from(categories);
-      const [prodCount] = await db.select({ total: count() }).from(products);
-      const [activeProdCount] = await db
-        .select({ total: count() })
-        .from(products)
-        .where(eq(products.isActive, true));
-      const [variantCount] = await db
-        .select({ total: count() })
-        .from(productVariants);
-      const [activeVariantCount] = await db
-        .select({ total: count() })
-        .from(productVariants)
-        .where(eq(productVariants.isAvailable, true));
-      const [offerCount] = await db.select({ total: count() }).from(offers);
-      const [activeOfferCount] = await db
-        .select({ total: count() })
-        .from(offers)
-        .where(eq(offers.isActive, true));
+    const [catCount] = await db.select({ total: count() }).from(categories);
+    const [prodCount] = await db.select({ total: count() }).from(products);
+    const [activeProdCount] = await db
+      .select({ total: count() })
+      .from(products)
+      .where(eq(products.isActive, true));
+    const [variantCount] = await db.select({ total: count() }).from(productVariants);
+    const [activeVariantCount] = await db
+      .select({ total: count() })
+      .from(productVariants)
+      .where(eq(productVariants.isAvailable, true));
+    const [offerCount] = await db.select({ total: count() }).from(offers);
+    const [activeOfferCount] = await db
+      .select({ total: count() })
+      .from(offers)
+      .where(eq(offers.isActive, true));
 
-      // Category distribution
-      const categoryDistribution = await db
-        .select({
-          categoryId: products.categoryId,
-          categoryLabel: categories.label,
-          productCount: count(products.id),
-        })
-        .from(products)
-        .leftJoin(categories, eq(products.categoryId, categories.id))
-        .groupBy(products.categoryId, categories.label);
+    // Category distribution
+    const categoryDistribution = await db
+      .select({
+        categoryId: products.categoryId,
+        categoryLabel: categories.label,
+        productCount: count(products.id),
+      })
+      .from(products)
+      .leftJoin(categories, eq(products.categoryId, categories.id))
+      .groupBy(products.categoryId, categories.label);
 
-      // Recent products
-      const recentProducts = await db
-        .select({
-          id: products.id,
-          name: products.name,
-          category: categories.label,
-          isActive: products.isActive,
-          updatedAt: products.updatedAt,
-        })
-        .from(products)
-        .leftJoin(categories, eq(products.categoryId, categories.id))
-        .orderBy(desc(products.updatedAt))
-        .limit(6);
+    // Recent products
+    const recentProducts = await db
+      .select({
+        id: products.id,
+        name: products.name,
+        category: categories.label,
+        isActive: products.isActive,
+        updatedAt: products.updatedAt,
+      })
+      .from(products)
+      .leftJoin(categories, eq(products.categoryId, categories.id))
+      .orderBy(desc(products.updatedAt))
+      .limit(6);
 
-      if ((prodCount?.total ?? 0) === 0) {
-        throw new Error("Empty DB, fallback to seed");
-      }
-
-      return {
-        totalCategories: catCount?.total ?? 0,
-        totalProducts: prodCount?.total ?? 0,
-        activeProducts: activeProdCount?.total ?? 0,
-        inactiveProducts:
-          (prodCount?.total ?? 0) - (activeProdCount?.total ?? 0),
-        totalVariants: variantCount?.total ?? 0,
-        activeVariants: activeVariantCount?.total ?? 0,
-        unavailableVariants:
-          (variantCount?.total ?? 0) - (activeVariantCount?.total ?? 0),
-        totalOffers: offerCount?.total ?? 0,
-        activeOffers: activeOfferCount?.total ?? 0,
-        categoryDistribution: categoryDistribution.map((c) => ({
-          id: c.categoryId,
-          label: c.categoryLabel || c.categoryId,
-          count: Number(c.productCount),
-        })),
-        recentProducts: recentProducts.map((p) => ({
-          ...p,
-          updatedAt: p.updatedAt.toISOString(),
-        })),
-      };
-    } catch {
-      const allSeedVariants = SEED_PRODUCTS.flatMap((p) => p.variants);
-      return {
-        totalCategories: SEED_CATEGORIES.length,
-        totalProducts: SEED_PRODUCTS.length,
-        activeProducts: SEED_PRODUCTS.filter((p) => p.isActive).length,
-        inactiveProducts: SEED_PRODUCTS.filter((p) => !p.isActive).length,
-        totalVariants: allSeedVariants.length,
-        activeVariants: allSeedVariants.filter((v) => v.isAvailable).length,
-        unavailableVariants: allSeedVariants.filter((v) => !v.isAvailable)
-          .length,
-        totalOffers: 0,
-        activeOffers: 0,
-        categoryDistribution: SEED_CATEGORIES.map((c) => ({
-          id: c.id,
-          label: c.label,
-          count: SEED_PRODUCTS.filter((p) => p.categoryId === c.id).length,
-        })),
-        recentProducts: SEED_PRODUCTS.slice(0, 6).map((p) => ({
-          id: p.id,
-          name: p.name,
-          category:
-            SEED_CATEGORIES.find((c) => c.id === p.categoryId)?.label ||
-            p.categoryId,
-          isActive: p.isActive,
-          updatedAt: new Date().toISOString(),
-        })),
-      };
+    if ((prodCount?.total ?? 0) === 0) {
+      throw new Error("Empty DB, fallback to seed");
     }
-  },
-);
+
+    return {
+      totalCategories: catCount?.total ?? 0,
+      totalProducts: prodCount?.total ?? 0,
+      activeProducts: activeProdCount?.total ?? 0,
+      inactiveProducts: (prodCount?.total ?? 0) - (activeProdCount?.total ?? 0),
+      totalVariants: variantCount?.total ?? 0,
+      activeVariants: activeVariantCount?.total ?? 0,
+      unavailableVariants: (variantCount?.total ?? 0) - (activeVariantCount?.total ?? 0),
+      totalOffers: offerCount?.total ?? 0,
+      activeOffers: activeOfferCount?.total ?? 0,
+      categoryDistribution: categoryDistribution.map((c) => ({
+        id: c.categoryId,
+        label: c.categoryLabel || c.categoryId,
+        count: Number(c.productCount),
+      })),
+      recentProducts: recentProducts.map((p) => ({
+        ...p,
+        updatedAt: p.updatedAt.toISOString(),
+      })),
+    };
+  } catch {
+    const allSeedVariants = SEED_PRODUCTS.flatMap((p) => p.variants);
+    return {
+      totalCategories: SEED_CATEGORIES.length,
+      totalProducts: SEED_PRODUCTS.length,
+      activeProducts: SEED_PRODUCTS.filter((p) => p.isActive).length,
+      inactiveProducts: SEED_PRODUCTS.filter((p) => !p.isActive).length,
+      totalVariants: allSeedVariants.length,
+      activeVariants: allSeedVariants.filter((v) => v.isAvailable).length,
+      unavailableVariants: allSeedVariants.filter((v) => !v.isAvailable).length,
+      totalOffers: 0,
+      activeOffers: 0,
+      categoryDistribution: SEED_CATEGORIES.map((c) => ({
+        id: c.id,
+        label: c.label,
+        count: SEED_PRODUCTS.filter((p) => p.categoryId === c.id).length,
+      })),
+      recentProducts: SEED_PRODUCTS.slice(0, 6).map((p) => ({
+        id: p.id,
+        name: p.name,
+        category: SEED_CATEGORIES.find((c) => c.id === p.categoryId)?.label || p.categoryId,
+        isActive: p.isActive,
+        updatedAt: new Date().toISOString(),
+      })),
+    };
+  }
+});
 
 /* =========================================================================
    3. PRODUCTS CRUD
@@ -205,8 +182,7 @@ export const getAdminProductsFn = createServerFn({ method: "GET" })
         );
       }
 
-      const whereClause =
-        conditions.length > 0 ? and(...conditions) : undefined;
+      const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
 
       const prods = await db
         .select({
@@ -344,11 +320,7 @@ export const getAdminProductDetailsFn = createServerFn({ method: "GET" })
     try {
       const db = getDb();
 
-      const [prod] = await db
-        .select()
-        .from(products)
-        .where(eq(products.id, data.id))
-        .limit(1);
+      const [prod] = await db.select().from(products).where(eq(products.id, data.id)).limit(1);
 
       if (!prod) {
         throw new Error("المنتج غير موجود.");
@@ -428,10 +400,7 @@ export const createProductFn = createServerFn({ method: "POST" })
       id: z
         .string()
         .min(2, "المعرف التعريفي مطلوب")
-        .regex(
-          /^[a-z0-9_-]+$/,
-          "المعرف يجب أن يكون حروفا إنجليزية وأرقاما وشرطات فقط",
-        ),
+        .regex(/^[a-z0-9_-]+$/, "المعرف يجب أن يكون حروفا إنجليزية وأرقاما وشرطات فقط"),
       name: z.string().min(2, "اسم المنتج مطلوب"),
       categoryId: z.string().min(1, "يرجى اختيار القسم"),
       productType: z.enum(["ps_plus", "game", "subscription", "gift_card"]),
@@ -457,9 +426,7 @@ export const createProductFn = createServerFn({ method: "POST" })
       .limit(1);
 
     if (existing) {
-      throw new Error(
-        `معرف المنتج "${data.id}" مستخدم بالفعل. يرجى اختيار معرف فريد.`,
-      );
+      throw new Error(`معرف المنتج "${data.id}" مستخدم بالفعل. يرجى اختيار معرف فريد.`);
     }
 
     // Verify category exists
@@ -521,11 +488,7 @@ export const updateProductFn = createServerFn({ method: "POST" })
     await assertAdminSession();
     const db = getDb();
 
-    const [existing] = await db
-      .select()
-      .from(products)
-      .where(eq(products.id, data.id))
-      .limit(1);
+    const [existing] = await db.select().from(products).where(eq(products.id, data.id)).limit(1);
 
     if (!existing) {
       throw new Error("المنتج المراد تعديله غير موجود.");
@@ -585,11 +548,7 @@ export const deleteProductFn = createServerFn({ method: "POST" })
     await assertAdminSession();
     const db = getDb();
 
-    const [existing] = await db
-      .select()
-      .from(products)
-      .where(eq(products.id, data.id))
-      .limit(1);
+    const [existing] = await db.select().from(products).where(eq(products.id, data.id)).limit(1);
 
     if (!existing) {
       throw new Error("المنتج غير موجود.");
@@ -789,10 +748,7 @@ export const uploadProductImageFn = createServerFn({ method: "POST" })
     await assertAdminSession();
 
     // Clean base64 header if present
-    const base64Clean = data.base64Data.replace(
-      /^data:image\/[a-z]+;base64,/,
-      "",
-    );
+    const base64Clean = data.base64Data.replace(/^data:image\/[a-z]+;base64,/, "");
     const buffer = Buffer.from(base64Clean, "base64");
 
     const result = await uploadCatalogImage({
@@ -808,56 +764,52 @@ export const uploadProductImageFn = createServerFn({ method: "POST" })
    6. CATEGORIES CRUD
    ========================================================================= */
 
-export const getAdminCategoriesFn = createServerFn({ method: "GET" }).handler(
-  async () => {
-    await assertAdminSession();
-    try {
-      const db = getDb();
+export const getAdminCategoriesFn = createServerFn({ method: "GET" }).handler(async () => {
+  await assertAdminSession();
+  try {
+    const db = getDb();
 
-      const cats = await db
-        .select({
-          id: categories.id,
-          label: categories.label,
-          sortOrder: categories.sortOrder,
-          isActive: categories.isActive,
-          createdAt: categories.createdAt,
-          updatedAt: categories.updatedAt,
-        })
-        .from(categories)
-        .orderBy(asc(categories.sortOrder));
+    const cats = await db
+      .select({
+        id: categories.id,
+        label: categories.label,
+        sortOrder: categories.sortOrder,
+        isActive: categories.isActive,
+        createdAt: categories.createdAt,
+        updatedAt: categories.updatedAt,
+      })
+      .from(categories)
+      .orderBy(asc(categories.sortOrder));
 
-      if (cats.length === 0) {
-        throw new Error("Empty categories in DB, fallback to seed");
-      }
-
-      const prodCounts = await db
-        .select({
-          categoryId: products.categoryId,
-          count: count(products.id),
-        })
-        .from(products)
-        .groupBy(products.categoryId);
-
-      const countMap = new Map(
-        prodCounts.map((c) => [c.categoryId, Number(c.count)]),
-      );
-
-      return cats.map((c) => ({
-        ...c,
-        productCount: countMap.get(c.id) || 0,
-        createdAt: c.createdAt.toISOString(),
-        updatedAt: c.updatedAt.toISOString(),
-      }));
-    } catch {
-      return SEED_CATEGORIES.map((c) => ({
-        ...c,
-        productCount: SEED_PRODUCTS.filter((p) => p.categoryId === c.id).length,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      }));
+    if (cats.length === 0) {
+      throw new Error("Empty categories in DB, fallback to seed");
     }
-  },
-);
+
+    const prodCounts = await db
+      .select({
+        categoryId: products.categoryId,
+        count: count(products.id),
+      })
+      .from(products)
+      .groupBy(products.categoryId);
+
+    const countMap = new Map(prodCounts.map((c) => [c.categoryId, Number(c.count)]));
+
+    return cats.map((c) => ({
+      ...c,
+      productCount: countMap.get(c.id) || 0,
+      createdAt: c.createdAt.toISOString(),
+      updatedAt: c.updatedAt.toISOString(),
+    }));
+  } catch {
+    return SEED_CATEGORIES.map((c) => ({
+      ...c,
+      productCount: SEED_PRODUCTS.filter((p) => p.categoryId === c.id).length,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    }));
+  }
+});
 
 export const createCategoryFn = createServerFn({ method: "POST" })
   .validator(
@@ -865,10 +817,7 @@ export const createCategoryFn = createServerFn({ method: "POST" })
       id: z
         .string()
         .min(2, "معرف القسم مطلوب")
-        .regex(
-          /^[a-z0-9_-]+$/,
-          "المعرف يجب أن يكون حروفا إنجليزية وأرقاما فقط",
-        ),
+        .regex(/^[a-z0-9_-]+$/, "المعرف يجب أن يكون حروفا إنجليزية وأرقاما فقط"),
       label: z.string().min(2, "اسم القسم بالعربية مطلوب"),
       sortOrder: z.number().int().default(0),
       isActive: z.boolean().default(true),
@@ -970,59 +919,57 @@ export const deleteCategoryFn = createServerFn({ method: "POST" })
    7. OFFERS CRUD
    ========================================================================= */
 
-export const getAdminOffersFn = createServerFn({ method: "GET" }).handler(
-  async () => {
-    await assertAdminSession();
-    try {
-      const db = getDb();
+export const getAdminOffersFn = createServerFn({ method: "GET" }).handler(async () => {
+  await assertAdminSession();
+  try {
+    const db = getDb();
 
-      const offerList = await db
-        .select({
-          id: offers.id,
-          productId: offers.productId,
-          productName: products.name,
-          title: offers.title,
-          subtitle: offers.subtitle,
-          badge: offers.badge,
-          discountPrice: offers.discountPrice,
-          originalPrice: offers.originalPrice,
-          imageUrl: offers.imageUrl,
-          accent: offers.accent,
-          isActive: offers.isActive,
-          validUntil: offers.validUntil,
-          sortOrder: offers.sortOrder,
-          createdAt: offers.createdAt,
-          updatedAt: offers.updatedAt,
-        })
-        .from(offers)
-        .leftJoin(products, eq(offers.productId, products.id))
-        .orderBy(asc(offers.sortOrder), desc(offers.createdAt));
+    const offerList = await db
+      .select({
+        id: offers.id,
+        productId: offers.productId,
+        productName: products.name,
+        title: offers.title,
+        subtitle: offers.subtitle,
+        badge: offers.badge,
+        discountPrice: offers.discountPrice,
+        originalPrice: offers.originalPrice,
+        imageUrl: offers.imageUrl,
+        accent: offers.accent,
+        isActive: offers.isActive,
+        validUntil: offers.validUntil,
+        sortOrder: offers.sortOrder,
+        createdAt: offers.createdAt,
+        updatedAt: offers.updatedAt,
+      })
+      .from(offers)
+      .leftJoin(products, eq(offers.productId, products.id))
+      .orderBy(asc(offers.sortOrder), desc(offers.createdAt));
 
-      const prods = await db
-        .select({ id: products.id, name: products.name })
-        .from(products)
-        .orderBy(asc(products.name));
+    const prods = await db
+      .select({ id: products.id, name: products.name })
+      .from(products)
+      .orderBy(asc(products.name));
 
-      const now = new Date();
+    const now = new Date();
 
-      return {
-        offers: offerList.map((o) => ({
-          ...o,
-          isExpired: Boolean(o.validUntil && o.validUntil < now),
-          validUntil: o.validUntil ? o.validUntil.toISOString() : null,
-          createdAt: o.createdAt.toISOString(),
-          updatedAt: o.updatedAt.toISOString(),
-        })),
-        products: prods,
-      };
-    } catch {
-      return {
-        offers: [],
-        products: SEED_PRODUCTS.map((p) => ({ id: p.id, name: p.name })),
-      };
-    }
-  },
-);
+    return {
+      offers: offerList.map((o) => ({
+        ...o,
+        isExpired: Boolean(o.validUntil && o.validUntil < now),
+        validUntil: o.validUntil ? o.validUntil.toISOString() : null,
+        createdAt: o.createdAt.toISOString(),
+        updatedAt: o.updatedAt.toISOString(),
+      })),
+      products: prods,
+    };
+  } catch {
+    return {
+      offers: [],
+      products: SEED_PRODUCTS.map((p) => ({ id: p.id, name: p.name })),
+    };
+  }
+});
 
 export const createOfferFn = createServerFn({ method: "POST" })
   .validator(
@@ -1130,11 +1077,7 @@ export const updateOfferFn = createServerFn({ method: "POST" })
     await assertAdminSession();
     const db = getDb();
 
-    const [existing] = await db
-      .select()
-      .from(offers)
-      .where(eq(offers.id, data.id))
-      .limit(1);
+    const [existing] = await db.select().from(offers).where(eq(offers.id, data.id)).limit(1);
 
     if (!existing) {
       throw new Error("العرض غير موجود.");
@@ -1240,61 +1183,59 @@ export const toggleOfferActiveFn = createServerFn({ method: "POST" })
    8. STORE SETTINGS
    ========================================================================= */
 
-export const getAdminSettingsFn = createServerFn({ method: "GET" }).handler(
-  async () => {
-    await assertAdminSession();
-    try {
-      const db = getDb();
+export const getAdminSettingsFn = createServerFn({ method: "GET" }).handler(async () => {
+  await assertAdminSession();
+  try {
+    const db = getDb();
 
-      const all = await db.select().from(storeSettings);
-      const map: Record<string, unknown> = {};
-      for (const s of all) {
-        map[s.key] = s.value;
-      }
-
-      return {
-        contactInfo: (map.contact_info as Record<string, string>) || {
-          primary_whatsapp: "201109664083",
-          display_order_number: "01109664083",
-          display_payment_number: "01014956483",
-          support_hours: "24/7",
-        },
-        paymentAccounts: (map.payment_accounts as Record<string, string>) || {
-          vodafone_cash: "01109664083",
-          instapay: "01014956483",
-          telda: "@flix90",
-        },
-        announcement: (map.announcement as {
-          active: boolean;
-          text: string;
-          badge?: string;
-          link?: string;
-        }) || {
-          active: false,
-          text: "",
-        },
-      };
-    } catch {
-      return {
-        contactInfo: {
-          primary_whatsapp: "201109664083",
-          display_order_number: "01109664083",
-          display_payment_number: "01014956483",
-          support_hours: "24/7",
-        },
-        paymentAccounts: {
-          vodafone_cash: "01109664083",
-          instapay: "01014956483",
-          telda: "@flix90",
-        },
-        announcement: {
-          active: false,
-          text: "",
-        },
-      };
+    const all = await db.select().from(storeSettings);
+    const map: Record<string, unknown> = {};
+    for (const s of all) {
+      map[s.key] = s.value;
     }
-  },
-);
+
+    return {
+      contactInfo: (map.contact_info as Record<string, string>) || {
+        primary_whatsapp: "201109664083",
+        display_order_number: "01109664083",
+        display_payment_number: "01014956483",
+        support_hours: "24/7",
+      },
+      paymentAccounts: (map.payment_accounts as Record<string, string>) || {
+        vodafone_cash: "01109664083",
+        instapay: "01014956483",
+        telda: "@flix90",
+      },
+      announcement: (map.announcement as {
+        active: boolean;
+        text: string;
+        badge?: string;
+        link?: string;
+      }) || {
+        active: false,
+        text: "",
+      },
+    };
+  } catch {
+    return {
+      contactInfo: {
+        primary_whatsapp: "201109664083",
+        display_order_number: "01109664083",
+        display_payment_number: "01014956483",
+        support_hours: "24/7",
+      },
+      paymentAccounts: {
+        vodafone_cash: "01109664083",
+        instapay: "01014956483",
+        telda: "@flix90",
+      },
+      announcement: {
+        active: false,
+        text: "",
+      },
+    };
+  }
+});
 
 export const updateStoreSettingsFn = createServerFn({ method: "POST" })
   .validator(

@@ -321,16 +321,12 @@ function GiftCardPicker({
 }) {
   const [selected, setSelected] = useState(amounts[0]?.label ?? "");
   const current = amounts.find((a) => a.label === selected) ?? amounts[0];
-  const isAvailable = current
-    ? current.isAvailable !== false && current.price > 0
-    : false;
+  const isAvailable = current ? current.isAvailable !== false && current.price > 0 : false;
 
   return (
     <div className="rounded-lg bg-white/[0.03] border border-white/10 p-4 space-y-4">
       <div>
-        <div className="text-xs text-white/60 mb-2 font-display tracking-wider">
-          اختر القيمة
-        </div>
+        <div className="text-xs text-white/60 mb-2 font-display tracking-wider">اختر القيمة</div>
         <select
           value={selected}
           onChange={(e) => setSelected(e.target.value)}
@@ -340,12 +336,7 @@ function GiftCardPicker({
           {amounts.map((a) => {
             const avail = a.isAvailable !== false && a.price > 0;
             return (
-              <option
-                key={a.label}
-                value={a.label}
-                disabled={!avail}
-                className="bg-[#0a0a0a]"
-              >
+              <option key={a.label} value={a.label} disabled={!avail} className="bg-[#0a0a0a]">
                 {a.label} — {a.price} جنيه {!avail ? "(غير متوفر)" : ""}
               </option>
             );
@@ -396,9 +387,7 @@ function SlotRow({
     <div
       className={`flex items-center justify-between gap-3 py-2.5 border-b border-white/5 last:border-0 ${available ? "" : "opacity-50"}`}
     >
-      <span className="text-xs text-white/60 tracking-wider font-display">
-        {label}
-      </span>
+      <span className="text-xs text-white/60 tracking-wider font-display">{label}</span>
       {available ? (
         <div className="flex items-center gap-2">
           <span className="font-display text-sm">
@@ -443,18 +432,12 @@ export function Offers({
         return (
           g.name.toLowerCase().includes(q) ||
           g.slug.toLowerCase().includes(q) ||
-          (q.includes("gta") &&
-            g.name.toLowerCase().includes("grand theft auto"))
+          (q.includes("gta") && g.name.toLowerCase().includes("grand theft auto"))
         );
       })
     : gameList;
 
-  const startBuy = (
-    g: Game,
-    account: string,
-    price: number,
-    editionLabel?: string,
-  ) => {
+  const startBuy = (g: Game, account: string, price: number, editionLabel?: string) => {
     setOrder({
       product: editionLabel ? `${g.name} — ${editionLabel}` : g.name,
       type: editionLabel ? `${g.name} (${editionLabel})` : g.name,
@@ -472,15 +455,11 @@ export function Offers({
   };
 
   return (
-    <section
-      id="offers"
-      className="relative py-24 px-4 sm:px-6 border-t border-white/5"
-    >
+    <section id="offers" className="relative py-24 px-4 sm:px-6 border-t border-white/5">
       <div
         className="absolute inset-0 -z-10 opacity-60"
         style={{
-          background:
-            "radial-gradient(ellipse at center, rgba(204,0,0,0.12), transparent 70%)",
+          background: "radial-gradient(ellipse at center, rgba(204,0,0,0.12), transparent 70%)",
         }}
       />
 
@@ -489,12 +468,8 @@ export function Offers({
           <span className="inline-flex items-center gap-2 text-red-400 text-sm tracking-[0.3em] font-display">
             <Flame className="h-4 w-4" /> — عروض حصرية —
           </span>
-          <h2 className="section-heading text-chrome mt-2">
-            Summer Offers · عروض الصيف
-          </h2>
-          <p className="text-white/60 mt-3">
-            اضغط على أي لعبة لعرض الأسعار وزر الطلب
-          </p>
+          <h2 className="section-heading text-chrome mt-2">Summer Offers · عروض الصيف</h2>
+          <p className="text-white/60 mt-3">اضغط على أي لعبة لعرض الأسعار وزر الطلب</p>
         </div>
 
         {/* ===== Search Bar ===== */}
@@ -526,12 +501,7 @@ export function Offers({
                 onClick={() => setSearchQuery("")}
                 className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
               >
-                <svg
-                  className="w-4 h-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -544,9 +514,7 @@ export function Offers({
           </div>
           {searchQuery && (
             <p className="text-center text-sm text-gray-400 mt-2">
-              {filteredGames.length === 0
-                ? "مفيش نتائج 😔"
-                : `${filteredGames.length} لعبة`}
+              {filteredGames.length === 0 ? "مفيش نتائج 😔" : `${filteredGames.length} لعبة`}
             </p>
           )}
         </div>
@@ -655,16 +623,13 @@ export function Offers({
                           ))}
                         </div>
                       )}
-                      <h3 className="font-display text-2xl text-white leading-tight">
-                        {g.name}
-                      </h3>
+                      <h3 className="font-display text-2xl text-white leading-tight">{g.name}</h3>
                     </div>
                   </div>
 
                   <div className="p-5">
                     <div className="flex items-center gap-2 text-xs tracking-[0.3em] text-white/40 mb-3">
-                      <Gamepad2 className="h-3.5 w-3.5 text-red-400" /> اختر نوع
-                      الحساب والسعر
+                      <Gamepad2 className="h-3.5 w-3.5 text-red-400" /> اختر نوع الحساب والسعر
                     </div>
 
                     {/* Multi-edition items (e.g. GTA 6: Standard / Ultimate) */}
@@ -697,10 +662,7 @@ export function Offers({
                       </div>
                     ) : g.giftAmounts ? (
                       /* Dropdown-priced items (e.g. PlayStation Gift Cards) */
-                      <GiftCardPicker
-                        amounts={g.giftAmounts}
-                        onBuy={(a, p) => startBuy(g, a, p)}
-                      />
+                      <GiftCardPicker amounts={g.giftAmounts} onBuy={(a, p) => startBuy(g, a, p)} />
                     ) : g.simplePrice !== undefined ? (
                       /* Simple single-price items (e.g. Netflix) */
                       <div className="rounded-lg bg-white/[0.03] border border-white/10 px-4">
@@ -732,8 +694,7 @@ export function Offers({
                     )}
 
                     <p className="text-[11px] text-white/40 text-center mt-3">
-                      اضغط على أي سعر لبدء عملية الدفع · الخانات الرمادية غير
-                      متاحة لهذه اللعبة
+                      اضغط على أي سعر لبدء عملية الدفع · الخانات الرمادية غير متاحة لهذه اللعبة
                     </p>
                   </div>
                 </motion.div>

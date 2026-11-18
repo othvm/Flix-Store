@@ -1,8 +1,5 @@
 import { createFileRoute, useRouter } from "@tanstack/react-router";
-import {
-  getAdminSettingsFn,
-  updateStoreSettingsFn,
-} from "@/lib/api/admin.functions";
+import { getAdminSettingsFn, updateStoreSettingsFn } from "@/lib/api/admin.functions";
 import {
   Settings,
   Phone,
@@ -29,9 +26,7 @@ function AdminSettingsPage() {
 
   // Contact Info state
   const [primaryWhatsapp, setPrimaryWhatsapp] = useState(
-    settings.contactInfo.primary_whatsapp ||
-      settings.contactInfo.primaryWhatsapp ||
-      "201109664083",
+    settings.contactInfo.primary_whatsapp || settings.contactInfo.primaryWhatsapp || "201109664083",
   );
   const [displayOrderNumber, setDisplayOrderNumber] = useState(
     settings.contactInfo.display_order_number ||
@@ -54,12 +49,9 @@ function AdminSettingsPage() {
     if (typeof val === "string" && val.trim().length > 0) return val.trim();
     if (typeof val === "object" && val !== null) {
       const obj = val as Record<string, unknown>;
-      if (typeof obj.number === "string" && obj.number.trim().length > 0)
-        return obj.number.trim();
-      if (typeof obj.id === "string" && obj.id.trim().length > 0)
-        return obj.id.trim();
-      if (typeof obj.value === "string" && obj.value.trim().length > 0)
-        return obj.value.trim();
+      if (typeof obj.number === "string" && obj.number.trim().length > 0) return obj.number.trim();
+      if (typeof obj.id === "string" && obj.id.trim().length > 0) return obj.id.trim();
+      if (typeof obj.value === "string" && obj.value.trim().length > 0) return obj.value.trim();
     }
     return fallback;
   };
@@ -67,25 +59,20 @@ function AdminSettingsPage() {
   // Payment Accounts state
   const [vodafoneCash, setVodafoneCash] = useState(
     extractString(
-      settings.paymentAccounts.vodafone_cash ||
-        settings.paymentAccounts.vodafoneCash,
+      settings.paymentAccounts.vodafone_cash || settings.paymentAccounts.vodafoneCash,
       "01109664083",
     ),
   );
   const [instapay, setInstapay] = useState(
     extractString(settings.paymentAccounts.instapay, "01014956483"),
   );
-  const [telda, setTelda] = useState(
-    extractString(settings.paymentAccounts.telda, "@flix90"),
-  );
+  const [telda, setTelda] = useState(extractString(settings.paymentAccounts.telda, "@flix90"));
 
   // Announcement state
   const [announcementActive, setAnnouncementActive] = useState<boolean>(
     Boolean(settings.announcement.active),
   );
-  const [announcementText, setAnnouncementText] = useState(
-    settings.announcement.text || "",
-  );
+  const [announcementText, setAnnouncementText] = useState(settings.announcement.text || "");
 
   // Loading & Feedback
   const [savingKey, setSavingKey] = useState<string | null>(null);
@@ -111,9 +98,7 @@ function AdminSettingsPage() {
       setTimeout(() => setSavedKey(null), 3000);
       await router.invalidate();
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "حدث خطأ أثناء حفظ الإعدادات.",
-      );
+      setError(err instanceof Error ? err.message : "حدث خطأ أثناء حفظ الإعدادات.");
     } finally {
       setSavingKey(null);
     }
@@ -127,8 +112,7 @@ function AdminSettingsPage() {
           إعدادات <span className="text-red-500">المتجر وواتساب</span>
         </h1>
         <p className="mt-1 text-xs sm:text-sm text-zinc-400">
-          تحكم بأرقام واتساب للشراء، طرق الدفع والتحويل، وشريط الإعلانات
-          التنبيهية على واجهة المتجر
+          تحكم بأرقام واتساب للشراء، طرق الدفع والتحويل، وشريط الإعلانات التنبيهية على واجهة المتجر
         </p>
       </div>
 
@@ -261,8 +245,7 @@ function AdminSettingsPage() {
                 حسابات الدفع والتحويل (Payment Accounts)
               </h2>
               <p className="text-xs text-zinc-400">
-                المحافظ والحسابات المعروضة للعميل في نافذة إتمام الطلب للنسخ
-                والتحويل
+                المحافظ والحسابات المعروضة للعميل في نافذة إتمام الطلب للنسخ والتحويل
               </p>
             </div>
           </div>
@@ -355,8 +338,7 @@ function AdminSettingsPage() {
                 شريط الإعلانات التنبيهي (Store Announcement Banner)
               </h2>
               <p className="text-xs text-zinc-400">
-                شريط أحمر يظهر أعلى المتجر للإعلان عن عروض موسمية أو تنبيهات
-                هامة للعملاء
+                شريط أحمر يظهر أعلى المتجر للإعلان عن عروض موسمية أو تنبيهات هامة للعملاء
               </p>
             </div>
           </div>
@@ -376,9 +358,7 @@ function AdminSettingsPage() {
               onChange={(e) => setAnnouncementActive(e.target.checked)}
               className="w-4 h-4 rounded border-zinc-800 text-red-600 bg-zinc-900"
             />
-            <span className="font-semibold text-white">
-              تفعيل الشريط الإعلاني على المتجر
-            </span>
+            <span className="font-semibold text-white">تفعيل الشريط الإعلاني على المتجر</span>
           </label>
 
           <div>
@@ -396,9 +376,7 @@ function AdminSettingsPage() {
 
           {announcementActive && announcementText && (
             <div className="mt-3 p-3 rounded-xl bg-red-950/40 border border-red-900/40 text-xs text-white flex items-center gap-2">
-              <span className="px-2 py-0.5 rounded bg-red-600 text-[10px] font-bold">
-                معاينة:
-              </span>
+              <span className="px-2 py-0.5 rounded bg-red-600 text-[10px] font-bold">معاينة:</span>
               <span>📢 {announcementText}</span>
             </div>
           )}

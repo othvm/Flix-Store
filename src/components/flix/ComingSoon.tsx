@@ -53,18 +53,13 @@ const UPCOMING: Brand[] = [
 
 export function ComingSoon() {
   return (
-    <section
-      id="soon"
-      className="relative py-24 px-4 sm:px-6 border-t border-white/5"
-    >
+    <section id="soon" className="relative py-24 px-4 sm:px-6 border-t border-white/5">
       <div className="mx-auto max-w-7xl">
         <div className="text-center mb-12">
           <span className="text-red-400 text-sm tracking-[0.3em] font-display">
             — توسعنا مستمر —
           </span>
-          <h2 className="section-heading text-chrome mt-2">
-            المزيد قادم قريباً
-          </h2>
+          <h2 className="section-heading text-chrome mt-2">المزيد قادم قريباً</h2>
           <p className="text-white/60 mt-3">
             نحضّر باقة متكاملة من أفضل المنتجات الرقمية — ترقّبوا الإطلاق
           </p>
@@ -111,9 +106,7 @@ export function ComingSoon() {
                 </div>
 
                 <div className="p-4">
-                  <div className="font-display text-lg text-white/90 tracking-wider">
-                    {u.name}
-                  </div>
+                  <div className="font-display text-lg text-white/90 tracking-wider">{u.name}</div>
                   <div className="text-xs text-white/40 mt-1">{u.tagline}</div>
                   <div className="mt-3 h-1 w-full rounded-full bg-white/5 overflow-hidden">
                     <div className="h-full w-1/3 bg-gradient-to-r from-red-500 to-red-700 animate-pulse" />

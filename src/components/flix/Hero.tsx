@@ -10,8 +10,7 @@ export function Hero() {
         <div
           className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[900px] h-[900px] rounded-full opacity-60"
           style={{
-            background:
-              "radial-gradient(circle, rgba(204,0,0,0.35), transparent 60%)",
+            background: "radial-gradient(circle, rgba(204,0,0,0.35), transparent 60%)",
           }}
         />
         <div
@@ -45,16 +44,10 @@ export function Hero() {
             <span className="block text-2xl sm:text-3xl text-white/80 mb-2">
               متجر الترفيه الرقمي الأول
             </span>
-            <span
-              dir="ltr"
-              className="block text-[clamp(3.5rem,10vw,7rem)] text-chrome"
-            >
+            <span dir="ltr" className="block text-[clamp(3.5rem,10vw,7rem)] text-chrome">
               FLIX
             </span>
-            <span
-              dir="ltr"
-              className="block text-[clamp(3rem,8vw,6rem)] text-red-stroke -mt-3"
-            >
+            <span dir="ltr" className="block text-[clamp(3rem,8vw,6rem)] text-red-stroke -mt-3">
               STORE
             </span>
             <span className="block w-24 h-1 mt-4 mx-auto lg:mx-0 lg:mr-0 bg-gradient-to-r from-red-500 to-transparent" />
@@ -66,8 +59,7 @@ export function Hero() {
             transition={{ duration: 0.8, delay: 0.4 }}
             className="text-white/70 text-base sm:text-lg max-w-xl mx-auto lg:mx-0"
           >
-            اشتراكات PlayStation Plus بتسليم فوري وأسعار لا تقاوم — والمزيد من
-            المنتجات قادم قريباً
+            اشتراكات PlayStation Plus بتسليم فوري وأسعار لا تقاوم — والمزيد من المنتجات قادم قريباً
           </motion.p>
 
           <motion.div
@@ -95,18 +87,15 @@ export function Hero() {
             className="flex gap-8 pt-6 justify-center lg:justify-start text-sm text-white/60"
           >
             <div>
-              <div className="font-display text-3xl text-white">5K+</div>عميل
-              سعيد
+              <div className="font-display text-3xl text-white">5K+</div>عميل سعيد
             </div>
             <div className="w-px bg-white/10" />
             <div>
-              <div className="font-display text-3xl text-red-400">5⭐</div>تقييم
-              العملاء
+              <div className="font-display text-3xl text-red-400">5⭐</div>تقييم العملاء
             </div>
             <div className="w-px bg-white/10" />
             <div>
-              <div className="font-display text-3xl text-white">24/7</div>دعم
-              فوري
+              <div className="font-display text-3xl text-white">24/7</div>دعم فوري
             </div>
           </motion.div>
         </div>
@@ -121,8 +110,7 @@ export function Hero() {
           <div
             className="absolute inset-0 rounded-full blur-3xl opacity-70"
             style={{
-              background:
-                "radial-gradient(circle, rgba(255,26,26,0.5), transparent 70%)",
+              background: "radial-gradient(circle, rgba(255,26,26,0.5), transparent 70%)",
             }}
           />
           <div className="absolute inset-8 rounded-full border border-red-500/30 animate-[spin_30s_linear_infinite]" />
@@ -139,9 +127,7 @@ export function Hero() {
             <div className="-mt-6 font-display text-[7rem] leading-none text-red-stroke tracking-tighter">
               S
             </div>
-            <div className="mt-2 text-xs tracking-[0.4em] text-white/50">
-              PREMIUM · DIGITAL
-            </div>
+            <div className="mt-2 text-xs tracking-[0.4em] text-white/50">PREMIUM · DIGITAL</div>
           </motion.div>
         </motion.div>
       </div>

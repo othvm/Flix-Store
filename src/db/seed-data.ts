@@ -64,8 +64,7 @@ export const SEED_PRODUCTS: SeedProduct[] = [
     categoryId: "playstation",
     productType: "ps_plus",
     service: "PlayStation",
-    description:
-      "اشتراكات PlayStation Plus (Essential / Extra) — اختر النوع، المدة، ونوع الحساب",
+    description: "اشتراكات PlayStation Plus (Essential / Extra) — اختر النوع، المدة، ونوع الحساب",
     platforms: ["PS4", "PS5"],
     accent: "from-red-600 via-rose-900 to-black",
     isActive: true,
@@ -245,8 +244,7 @@ export const SEED_PRODUCTS: SeedProduct[] = [
     categoryId: "playstation",
     productType: "subscription",
     service: "PlayStation",
-    description:
-      "بطاقات اشتراك بلايستيشن بلس المباشرة (Essential / Extra / Premium)",
+    description: "بطاقات اشتراك بلايستيشن بلس المباشرة (Essential / Extra / Premium)",
     platforms: ["PS4", "PS5"],
     accent: "from-blue-600 via-indigo-950 to-black",
     isActive: true,

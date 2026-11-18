@@ -5,9 +5,7 @@ export function getSupabaseServerClient() {
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
   if (!supabaseUrl || !serviceRoleKey) {
-    throw new Error(
-      "SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY must be set in the environment.",
-    );
+    throw new Error("SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY must be set in the environment.");
   }
 
   return createClient(supabaseUrl, serviceRoleKey, {
@@ -20,19 +18,12 @@ export function getSupabaseServerClient() {
 
 export const CATALOG_BUCKET_NAME = "catalog-images";
 export const MAX_IMAGE_SIZE = 2 * 1024 * 1024; // 2MB
-export const ALLOWED_IMAGE_TYPES = new Set([
-  "image/jpeg",
-  "image/png",
-  "image/webp",
-]);
+export const ALLOWED_IMAGE_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
 
 /**
  * Validates binary magic bytes to guarantee file matches declared MIME type.
  */
-export function validateImageMagicBytes(
-  buffer: Buffer | Uint8Array,
-  contentType: string,
-) {
+export function validateImageMagicBytes(buffer: Buffer | Uint8Array, contentType: string) {
   if (buffer.byteLength < 12) {
     throw new Error("ملف الصورة تالف أو صغير جداً.");
   }
@@ -69,9 +60,7 @@ export function validateImageMagicBytes(
  * Extracts storage path if the URL points to our Supabase Storage bucket.
  * Returns null if it is a local static asset (e.g. /assets/games/...) or external URL.
  */
-export function extractStoragePathFromUrl(
-  url: string | null | undefined,
-): string | null {
+export function extractStoragePathFromUrl(url: string | null | undefined): string | null {
   if (!url) return null;
   const marker = `/storage/v1/object/public/${CATALOG_BUCKET_NAME}/`;
   const idx = url.indexOf(marker);
@@ -94,9 +83,7 @@ export async function uploadCatalogImage({
   contentType: string;
 }) {
   if (!ALLOWED_IMAGE_TYPES.has(contentType)) {
-    throw new Error(
-      `Unsupported file type: ${contentType}. Allowed types: JPEG, PNG, WebP.`,
-    );
+    throw new Error(`Unsupported file type: ${contentType}. Allowed types: JPEG, PNG, WebP.`);
   }
 
   if (fileBuffer.byteLength > MAX_IMAGE_SIZE) {
@@ -142,9 +129,7 @@ export async function uploadCatalogImage({
 export async function deleteCatalogImage(path: string) {
   if (!path) return;
   const supabase = getSupabaseServerClient();
-  const { error } = await supabase.storage
-    .from(CATALOG_BUCKET_NAME)
-    .remove([path]);
+  const { error } = await supabase.storage.from(CATALOG_BUCKET_NAME).remove([path]);
   if (error) {
     console.warn(`Failed to delete image at path ${path}:`, error.message);
   }

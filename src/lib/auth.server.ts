@@ -26,7 +26,14 @@ function timingSafeCompare(a: string, b: string): boolean {
 }
 
 function getAdminSecret(): string {
-  return process.env.ADMIN_ACCESS_CODE || "othvm";
+  const secret = process.env.ADMIN_ACCESS_CODE;
+  if (!secret) {
+    if (process.env.NODE_ENV === "production") {
+      throw new Error("ADMIN_ACCESS_CODE is not configured in environment variables.");
+    }
+    return "dev-fallback-secret-key-not-for-production";
+  }
+  return secret;
 }
 
 function createSignedSessionToken(expiresAtMs: number): string {
@@ -50,14 +57,8 @@ function verifySignedSessionToken(token: string): {
     .createHmac("sha256", getAdminSecret())
     .update(`${expiresAtMs}`)
     .digest("hex");
-  const fallbackSig = crypto
-    .createHmac("sha256", "othvm")
-    .update(`${expiresAtMs}`)
-    .digest("hex");
 
-  const matches =
-    timingSafeCompare(parts[2], expectedSig) ||
-    timingSafeCompare(parts[2], fallbackSig);
+  const matches = timingSafeCompare(parts[2], expectedSig);
   if (!matches) return { valid: false };
   return { valid: true, expiresAt: new Date(expiresAtMs) };
 }
@@ -88,11 +89,13 @@ export async function authenticateAdmin(accessCode: string) {
     throw new Error("لوحة التحكم مقفلة حالياً.");
   }
 
-  const expectedCode = process.env.ADMIN_ACCESS_CODE || "othvm";
+  const expectedCode = process.env.ADMIN_ACCESS_CODE;
+  if (!expectedCode) {
+    throw new Error("رمز الدخول غير مهيأ في متغيرات البيئة (ADMIN_ACCESS_CODE is not configured).");
+  }
+
   const inputCode = accessCode.trim();
-  const isValid =
-    timingSafeCompare(inputCode, expectedCode.trim()) ||
-    timingSafeCompare(inputCode, "othvm");
+  const isValid = timingSafeCompare(inputCode, expectedCode.trim());
 
   if (!isValid) {
     // Brute-force tracking if database is available
@@ -118,9 +121,7 @@ export async function authenticateAdmin(accessCode: string) {
 
       const newCount = (attemptRecord?.attemptCount ?? 0) + 1;
       const shouldLock = newCount >= MAX_ATTEMPTS;
-      const lockedUntil = shouldLock
-        ? new Date(now.getTime() + LOCKOUT_DURATION_MS)
-        : null;
+      const lockedUntil = shouldLock ? new Date(now.getTime() + LOCKOUT_DURATION_MS) : null;
 
       if (attemptRecord) {
         await db
@@ -141,9 +142,7 @@ export async function authenticateAdmin(accessCode: string) {
       }
 
       if (shouldLock) {
-        throw new Error(
-          "تم إدخال رمز خاطئ 5 مرات متتالية. تم قفل المحاولات لمدة 15 دقيقة.",
-        );
+        throw new Error("تم إدخال رمز خاطئ 5 مرات متتالية. تم قفل المحاولات لمدة 15 دقيقة.");
       }
 
       const remaining = MAX_ATTEMPTS - newCount;
@@ -166,9 +165,7 @@ export async function authenticateAdmin(accessCode: string) {
     const db = getDb();
 
     // Reset failed attempts on success
-    await db
-      .delete(adminLoginAttempts)
-      .where(eq(adminLoginAttempts.ip, clientIp));
+    await db.delete(adminLoginAttempts).where(eq(adminLoginAttempts.ip, clientIp));
 
     let userAgent: string | null = null;
     try {
@@ -185,10 +182,7 @@ export async function authenticateAdmin(accessCode: string) {
       ipAddress: clientIp,
     });
   } catch (err) {
-    console.warn(
-      "DB unavailable during admin login; generating signed fallback session:",
-      err,
-    );
+    console.warn("DB unavailable during admin login; generating signed fallback session:", err);
     sessionId = createSignedSessionToken(expiresAt.getTime());
   }
 
@@ -279,10 +273,7 @@ export async function logoutAdmin() {
     const sessionId = getCookie(ADMIN_SESSION_COOKIE);
     if (sessionId) {
       const db = getDb();
-      await db
-        .update(adminSessions)
-        .set({ isValid: false })
-        .where(eq(adminSessions.id, sessionId));
+      await db.update(adminSessions).set({ isValid: false }).where(eq(adminSessions.id, sessionId));
     }
   } catch (err) {
     console.error("Error revoking admin session in DB:", err);

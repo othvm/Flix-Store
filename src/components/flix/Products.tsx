@@ -8,29 +8,20 @@ type Tier = "Essential" | "Extra";
 type Duration = "شهر" | "3 شهور" | "سنة";
 type AccountType = "Prim5" | "Prim4" | "Sec";
 
-const TIERS: { id: Tier; tagline: string; accent: string; perks: string[] }[] =
-  [
-    {
-      id: "Essential",
-      tagline: "الأساسي",
-      accent: "blue",
-      perks: [
-        "ألعاب شهرية مجانية",
-        "اللعب أونلاين مع الأصدقاء",
-        "تخزين سحابي للحفظ",
-      ],
-    },
-    {
-      id: "Extra",
-      tagline: "الموصى به",
-      accent: "red",
-      perks: [
-        "كل مزايا Essential",
-        "كتالوج +400 لعبة",
-        "ألعاب Ubisoft+ Classics",
-      ],
-    },
-  ];
+const TIERS: { id: Tier; tagline: string; accent: string; perks: string[] }[] = [
+  {
+    id: "Essential",
+    tagline: "الأساسي",
+    accent: "blue",
+    perks: ["ألعاب شهرية مجانية", "اللعب أونلاين مع الأصدقاء", "تخزين سحابي للحفظ"],
+  },
+  {
+    id: "Extra",
+    tagline: "الموصى به",
+    accent: "red",
+    perks: ["كل مزايا Essential", "كتالوج +400 لعبة", "ألعاب Ubisoft+ Classics"],
+  },
+];
 
 const DURATIONS: { id: Duration; label: string }[] = [
   { id: "شهر", label: "شهر" },
@@ -176,9 +167,7 @@ export function Products({
                           </span>
                         )}
                         {t.id}
-                        <div className="text-[10px] mt-0.5 opacity-70">
-                          {t.tagline}
-                        </div>
+                        <div className="text-[10px] mt-0.5 opacity-70">{t.tagline}</div>
                       </button>
                     );
                   })}
@@ -220,9 +209,7 @@ export function Products({
                       }`}
                     >
                       {a.label}
-                      <div className="text-[10px] mt-0.5 opacity-70">
-                        {a.hint}
-                      </div>
+                      <div className="text-[10px] mt-0.5 opacity-70">{a.hint}</div>
                     </button>
                   ))}
                 </div>
@@ -231,10 +218,7 @@ export function Products({
               {/* Perks */}
               <ul className="mt-6 space-y-2">
                 {TIERS.find((t) => t.id === tier)!.perks.map((p) => (
-                  <li
-                    key={p}
-                    className="flex items-center gap-2 text-sm text-white/75"
-                  >
+                  <li key={p} className="flex items-center gap-2 text-sm text-white/75">
                     <Check className={`h-4 w-4 ${tierAccent.text}`} /> {p}
                   </li>
                 ))}
@@ -244,9 +228,7 @@ export function Products({
             {/* Right: price + CTA */}
             <div className="flex flex-col justify-between gap-6 border-t lg:border-t-0 lg:border-r border-white/10 lg:pr-10 pt-8 lg:pt-0">
               <div>
-                <div className="text-xs tracking-[0.3em] text-white/40">
-                  السعر الإجمالي
-                </div>
+                <div className="text-xs tracking-[0.3em] text-white/40">السعر الإجمالي</div>
                 <div className="mt-3 flex items-baseline gap-3">
                   <AnimatePresence mode="popLayout">
                     <motion.span
@@ -260,9 +242,7 @@ export function Products({
                       {price}
                     </motion.span>
                   </AnimatePresence>
-                  {isAvailable && (
-                    <span className="text-white/60 text-lg">جنيه</span>
-                  )}
+                  {isAvailable && <span className="text-white/60 text-lg">جنيه</span>}
                 </div>
                 <div className="mt-2 text-sm text-white/50">
                   {tier} · {dur} · {accLabel}
@@ -279,26 +259,20 @@ export function Products({
                   disabled={!isAvailable}
                   onClick={() => setFlowOpen(true)}
                   className={`btn-flix !text-base w-full font-bold ${
-                    isAvailable
-                      ? "pulse-red"
-                      : "opacity-50 cursor-not-allowed bg-zinc-800"
+                    isAvailable ? "pulse-red" : "opacity-50 cursor-not-allowed bg-zinc-800"
                   }`}
                   style={{ fontFamily: "Cairo, Tajawal, sans-serif" }}
                 >
                   {isAvailable ? "احصل عليه الآن 🎮" : "غير متوفر حالياً ⚠️"}
                 </button>
                 <p className="text-[11px] text-red-300/80 text-center mt-1">
-                  ممنوع استرجاع الفلوس بعد التحويل — إلا في حالة خطأ من جانبنا
-                  أو تأخير ❌
+                  ممنوع استرجاع الفلوس بعد التحويل — إلا في حالة خطأ من جانبنا أو تأخير ❌
                 </p>
                 <div className="flex items-start gap-2 text-[11px] text-white/50 mt-1">
                   <AlertTriangle className="h-3.5 w-3.5 text-red-400 shrink-0 mt-0.5" />
                   <span>
-                    الطلبات:{" "}
-                    {settings?.contactInfo?.displayOrderNumber || "01109664083"}{" "}
-                    · الدفع:{" "}
-                    {settings?.contactInfo?.displayPaymentNumber ||
-                      "01014956483"}
+                    الطلبات: {settings?.contactInfo?.displayOrderNumber || "01109664083"} · الدفع:{" "}
+                    {settings?.contactInfo?.displayPaymentNumber || "01014956483"}
                   </span>
                 </div>
               </div>

@@ -90,24 +90,21 @@ function AdminDashboardOverview() {
     },
     {
       title: "إدارة الأقسام والترتيب",
-      description:
-        "ترتيب الأقسام الرئيسية وتسمياتها وحالة ظهورها على واجهة المتجر.",
+      description: "ترتيب الأقسام الرئيسية وتسمياتها وحالة ظهورها على واجهة المتجر.",
       to: "/admin/categories",
       icon: FolderTree,
       badge: `${stats.totalCategories} أقسام`,
     },
     {
       title: "العروض الترويجية والبانرات",
-      description:
-        "إنشاء عروض ترويجية بخصومات محددة وربطها بالمنتجات مع تحديد تاريخ الانتهاء.",
+      description: "إنشاء عروض ترويجية بخصومات محددة وربطها بالمنتجات مع تحديد تاريخ الانتهاء.",
       to: "/admin/offers",
       icon: Tag,
       badge: `${stats.activeOffers} نشط`,
     },
     {
       title: "إعدادات المتجر وبيانات الدفع",
-      description:
-        "تعديل أرقام واتساب للطلبات، محافظ فودافون كاش وإنستاباي، وشريط الإعلانات.",
+      description: "تعديل أرقام واتساب للطلبات، محافظ فودافون كاش وإنستاباي، وشريط الإعلانات.",
       to: "/admin/settings",
       icon: Settings,
       badge: "بيانات حية",
@@ -125,13 +122,11 @@ function AdminDashboardOverview() {
               <span>لوحة إدارة المحتوى الرسمية (Live Store CMS)</span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white font-display">
-              مرحباً بك في لوحة تحكم{" "}
-              <span className="text-red-500">FLIX STORE</span>
+              مرحباً بك في لوحة تحكم <span className="text-red-500">FLIX STORE</span>
             </h1>
             <p className="mt-1 text-xs sm:text-sm text-zinc-400 max-w-2xl leading-relaxed">
-              تحكم بجميع محتويات المتجر، الأسعار، العروض، وأرقام التواصل في
-              الوقت الفعلي. تنعكس جميع التعديلات مباشرة على واجهة العملاء دون
-              الحاجة لإعادة نشر الكود.
+              تحكم بجميع محتويات المتجر، الأسعار، العروض، وأرقام التواصل في الوقت الفعلي. تنعكس جميع
+              التعديلات مباشرة على واجهة العملاء دون الحاجة لإعادة نشر الكود.
             </p>
           </div>
 
@@ -141,9 +136,7 @@ function AdminDashboardOverview() {
               disabled={refreshing}
               className="flex items-center gap-1.5 text-xs text-zinc-400 hover:text-white px-3 py-2 rounded-xl border border-zinc-800 bg-zinc-900/80 hover:bg-zinc-800 transition disabled:opacity-50 cursor-pointer"
             >
-              <RefreshCw
-                className={`w-3.5 h-3.5 ${refreshing ? "animate-spin" : ""}`}
-              />
+              <RefreshCw className={`w-3.5 h-3.5 ${refreshing ? "animate-spin" : ""}`} />
               <span>تحديث البيانات</span>
             </button>
             <div className="flex items-center gap-2 rounded-xl border border-emerald-900/40 bg-emerald-950/30 px-3.5 py-2 text-xs text-emerald-300 font-medium">
@@ -174,12 +167,8 @@ function AdminDashboardOverview() {
                   <Icon className="w-4 h-4" />
                 </div>
               </div>
-              <div className="text-3xl font-bold tracking-tight text-white mb-1">
-                {card.value}
-              </div>
-              <div className="text-[11px] text-zinc-400 truncate">
-                {card.subValue}
-              </div>
+              <div className="text-3xl font-bold tracking-tight text-white mb-1">{card.value}</div>
+              <div className="text-[11px] text-zinc-400 truncate">{card.subValue}</div>
             </Link>
           );
         })}
@@ -194,10 +183,7 @@ function AdminDashboardOverview() {
               <FolderTree className="w-4 h-4 text-purple-400" />
               <span>توزيع المنتجات حسب الأقسام</span>
             </h3>
-            <Link
-              to="/admin/categories"
-              className="text-[11px] text-zinc-400 hover:text-white"
-            >
+            <Link to="/admin/categories" className="text-[11px] text-zinc-400 hover:text-white">
               إدارة الأقسام ←
             </Link>
           </div>
@@ -223,10 +209,7 @@ function AdminDashboardOverview() {
               <Clock className="w-4 h-4 text-blue-400" />
               <span>أحدث المنتجات المعدلة في المتجر</span>
             </h3>
-            <Link
-              to="/admin/products"
-              className="text-[11px] text-zinc-400 hover:text-white"
-            >
+            <Link to="/admin/products" className="text-[11px] text-zinc-400 hover:text-white">
               عرض الكل ({stats.totalProducts}) ←
             </Link>
           </div>
@@ -239,9 +222,7 @@ function AdminDashboardOverview() {
                 className="p-3 rounded-lg bg-zinc-950/60 border border-zinc-800/60 hover:border-zinc-700 transition flex items-center justify-between gap-3 text-xs"
               >
                 <div className="min-w-0">
-                  <div className="font-semibold text-white truncate">
-                    {p.name}
-                  </div>
+                  <div className="font-semibold text-white truncate">{p.name}</div>
                   <div className="text-[11px] text-zinc-500 mt-0.5 truncate">
                     {p.category || "عام"}
                   </div>
@@ -265,9 +246,7 @@ function AdminDashboardOverview() {
 
       {/* Main CMS Management Sections */}
       <div>
-        <h2 className="text-lg font-bold text-white mb-4">
-          أقسام لوحة الإدارة
-        </h2>
+        <h2 className="text-lg font-bold text-white mb-4">أقسام لوحة الإدارة</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {quickLinks.map((item) => {
             const Icon = item.icon;
@@ -292,9 +271,7 @@ function AdminDashboardOverview() {
                       <ArrowUpRight className="w-4 h-4 text-zinc-600 group-hover:text-red-400 transition-colors" />
                     </div>
                   </div>
-                  <p className="text-xs text-zinc-400 leading-relaxed">
-                    {item.description}
-                  </p>
+                  <p className="text-xs text-zinc-400 leading-relaxed">{item.description}</p>
                 </div>
               </Link>
             );
@@ -311,9 +288,7 @@ function AdminDashboardOverview() {
           <div className="flex items-center gap-3 p-3.5 rounded-lg border border-zinc-800 bg-zinc-900/40">
             <Database className="w-4 h-4 text-emerald-400 shrink-0" />
             <div>
-              <div className="font-semibold text-white">
-                Supabase PostgreSQL 17
-              </div>
+              <div className="font-semibold text-white">Supabase PostgreSQL 17</div>
               <div className="text-[11px] text-zinc-400 font-mono">
                 Pooler: aws-0-eu-west-1 (Port 6543)
               </div>

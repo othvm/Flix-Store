@@ -1,18 +1,8 @@
 import { createServerFn } from "@tanstack/react-start";
 import { getDb } from "@/db";
-import {
-  categories,
-  products,
-  productVariants,
-  offers,
-  storeSettings,
-} from "@/db/schema";
+import { categories, products, productVariants, offers, storeSettings } from "@/db/schema";
 import { eq, and, or, isNull, gte, asc } from "drizzle-orm";
-import {
-  SEED_CATEGORIES,
-  SEED_PRODUCTS,
-  SEED_STORE_SETTINGS,
-} from "@/db/seed-data";
+import { SEED_CATEGORIES, SEED_PRODUCTS, SEED_STORE_SETTINGS } from "@/db/seed-data";
 
 export interface StorefrontData {
   categories: Array<{
@@ -167,10 +157,7 @@ function transformRawToStorefrontData(raw: RawDataInput): StorefrontData {
   };
 
   const psPlusProd = activeProds.find(
-    (p) =>
-      p.slug === "ps-plus" ||
-      p.slug === "playstation-plus" ||
-      p.id === "playstation-plus",
+    (p) => p.slug === "ps-plus" || p.slug === "playstation-plus" || p.id === "playstation-plus",
   );
 
   if (psPlusProd) {
@@ -187,17 +174,9 @@ function transformRawToStorefrontData(raw: RawDataInput): StorefrontData {
               ? "Sec"
               : null;
 
-      if (
-        tier &&
-        dur &&
-        slot &&
-        psPlusPrices[tier] &&
-        psPlusPrices[tier][dur]
-      ) {
+      if (tier && dur && slot && psPlusPrices[tier] && psPlusPrices[tier][dur]) {
         psPlusPrices[tier][dur][slot] = v.price;
-        psPlusAvailability[tier][dur][slot] = Boolean(
-          v.isAvailable && v.price > 0,
-        );
+        psPlusAvailability[tier][dur][slot] = Boolean(v.isAvailable && v.price > 0);
       }
     }
   }
@@ -205,10 +184,7 @@ function transformRawToStorefrontData(raw: RawDataInput): StorefrontData {
   // Map products to games/offers grid
   const gamesGrid: StorefrontData["games"] = [];
   const nonPsPlusProds = activeProds.filter(
-    (p) =>
-      p.slug !== "ps-plus" &&
-      p.slug !== "playstation-plus" &&
-      p.id !== "playstation-plus",
+    (p) => p.slug !== "ps-plus" && p.slug !== "playstation-plus" && p.id !== "playstation-plus",
   );
 
   for (const p of nonPsPlusProds) {
@@ -257,12 +233,9 @@ function transformRawToStorefrontData(raw: RawDataInput): StorefrontData {
           }
           const ed = editionsMap.get(edName)!;
           const slot = v.accountSlot?.toLowerCase();
-          if (slot === "prim5")
-            ed.slots.prim5 = v.isAvailable && v.price > 0 ? v.price : null;
-          else if (slot === "prim4")
-            ed.slots.prim4 = v.isAvailable && v.price > 0 ? v.price : null;
-          else if (slot === "sec")
-            ed.slots.sec = v.isAvailable && v.price > 0 ? v.price : null;
+          if (slot === "prim5") ed.slots.prim5 = v.isAvailable && v.price > 0 ? v.price : null;
+          else if (slot === "prim4") ed.slots.prim4 = v.isAvailable && v.price > 0 ? v.price : null;
+          else if (slot === "sec") ed.slots.sec = v.isAvailable && v.price > 0 ? v.price : null;
         }
 
         gamesGrid.push({
@@ -290,12 +263,9 @@ function transformRawToStorefrontData(raw: RawDataInput): StorefrontData {
 
         for (const v of pVariants) {
           const slot = v.accountSlot?.toLowerCase();
-          if (slot === "prim5")
-            slots.prim5 = v.isAvailable && v.price > 0 ? v.price : null;
-          else if (slot === "prim4")
-            slots.prim4 = v.isAvailable && v.price > 0 ? v.price : null;
-          else if (slot === "sec")
-            slots.sec = v.isAvailable && v.price > 0 ? v.price : null;
+          if (slot === "prim5") slots.prim5 = v.isAvailable && v.price > 0 ? v.price : null;
+          else if (slot === "prim4") slots.prim4 = v.isAvailable && v.price > 0 ? v.price : null;
+          else if (slot === "sec") slots.sec = v.isAvailable && v.price > 0 ? v.price : null;
         }
 
         gamesGrid.push({
@@ -314,9 +284,7 @@ function transformRawToStorefrontData(raw: RawDataInput): StorefrontData {
     } else {
       const primaryVariant = pVariants[0];
       const isAvailable = Boolean(
-        primaryVariant &&
-        primaryVariant.isAvailable &&
-        primaryVariant.price > 0,
+        primaryVariant && primaryVariant.isAvailable && primaryVariant.price > 0,
       );
       gamesGrid.push({
         id: p.id,
@@ -336,10 +304,8 @@ function transformRawToStorefrontData(raw: RawDataInput): StorefrontData {
   }
 
   // Settings extraction
-  const rawContact =
-    (settingsMap.contact_info as Record<string, unknown>) || {};
-  const rawPayment =
-    (settingsMap.payment_accounts as Record<string, unknown>) || {};
+  const rawContact = (settingsMap.contact_info as Record<string, unknown>) || {};
+  const rawPayment = (settingsMap.payment_accounts as Record<string, unknown>) || {};
   const rawAnnouncement =
     (settingsMap.announcement as { active?: boolean; text?: string }) ||
     (settingsMap.announcement_banner as {
@@ -352,21 +318,16 @@ function transformRawToStorefrontData(raw: RawDataInput): StorefrontData {
     if (typeof val === "string" && val.trim().length > 0) return val.trim();
     if (typeof val === "object" && val !== null) {
       const obj = val as Record<string, unknown>;
-      if (typeof obj.number === "string" && obj.number.trim().length > 0)
-        return obj.number.trim();
-      if (typeof obj.id === "string" && obj.id.trim().length > 0)
-        return obj.id.trim();
-      if (typeof obj.value === "string" && obj.value.trim().length > 0)
-        return obj.value.trim();
+      if (typeof obj.number === "string" && obj.number.trim().length > 0) return obj.number.trim();
+      if (typeof obj.id === "string" && obj.id.trim().length > 0) return obj.id.trim();
+      if (typeof obj.value === "string" && obj.value.trim().length > 0) return obj.value.trim();
     }
     return fallback;
   };
 
   const contactInfo = {
     primaryWhatsapp: extractString(
-      rawContact.primary_whatsapp ||
-        rawContact.primaryWhatsapp ||
-        rawContact.primary_order_wa,
+      rawContact.primary_whatsapp || rawContact.primaryWhatsapp || rawContact.primary_order_wa,
       "201109664083",
     ),
     displayOrderNumber: extractString(
@@ -377,25 +338,18 @@ function transformRawToStorefrontData(raw: RawDataInput): StorefrontData {
       rawContact.display_payment_number || rawContact.displayPaymentNumber,
       "01014956483",
     ),
-    supportHours: extractString(
-      rawContact.support_hours || rawContact.supportHours,
-      "24/7",
-    ),
+    supportHours: extractString(rawContact.support_hours || rawContact.supportHours, "24/7"),
   };
 
   const paymentAccounts = {
-    vodafoneCash: extractString(
-      rawPayment.vodafone_cash || rawPayment.vodafoneCash,
-      "01109664083",
-    ),
+    vodafoneCash: extractString(rawPayment.vodafone_cash || rawPayment.vodafoneCash, "01109664083"),
     instapay: extractString(rawPayment.instapay, "01014956483"),
     telda: extractString(rawPayment.telda, "@flix90"),
   };
 
   const announcement = {
     active: Boolean(
-      rawAnnouncement.active ??
-      (rawAnnouncement as { is_active?: boolean }).is_active,
+      rawAnnouncement.active ?? (rawAnnouncement as { is_active?: boolean }).is_active,
     ),
     text: rawAnnouncement.text || "",
   };
@@ -527,9 +481,7 @@ export const getStorefrontDataFn = createServerFn({ method: "GET" }).handler(
       }
 
       if (!activeProds || activeProds.length === 0) {
-        console.warn(
-          "Database returned 0 products, falling back to seed catalog.",
-        );
+        console.warn("Database returned 0 products, falling back to seed catalog.");
         return getFallbackStorefrontData();
       }
 
@@ -541,10 +493,7 @@ export const getStorefrontDataFn = createServerFn({ method: "GET" }).handler(
         settingsMap,
       });
     } catch (error) {
-      console.warn(
-        "Storefront DB query failed, serving verified seed fallback:",
-        error,
-      );
+      console.warn("Storefront DB query failed, serving verified seed fallback:", error);
       return getFallbackStorefrontData();
     }
   },

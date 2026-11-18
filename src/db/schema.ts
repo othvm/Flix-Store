@@ -1,12 +1,4 @@
-import {
-  pgTable,
-  text,
-  integer,
-  boolean,
-  timestamp,
-  jsonb,
-  uuid,
-} from "drizzle-orm/pg-core";
+import { pgTable, text, integer, boolean, timestamp, jsonb, uuid } from "drizzle-orm/pg-core";
 
 /**
  * 1. Categories
@@ -37,9 +29,7 @@ export const products = pgTable("products", {
   description: text("description"),
   platforms: jsonb("platforms").$type<string[]>().notNull().default([]), // ['PS4', 'PS5']
   imageUrl: text("image_url"), // URL from Vercel Blob or local poster asset
-  accent: text("accent")
-    .notNull()
-    .default("from-red-700 via-zinc-900 to-black"),
+  accent: text("accent").notNull().default("from-red-700 via-zinc-900 to-black"),
   isActive: boolean("is_active").notNull().default(true), // Visibility on storefront
   isPopular: boolean("is_popular").notNull().default(false), // Featured / Popular badge
   sortOrder: integer("sort_order").notNull().default(0),

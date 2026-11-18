@@ -179,8 +179,7 @@ function AdminLayout() {
                 <span>جلسة آمنة ومحمية</span>
               </div>
               <p className="text-[11px] text-zinc-500 leading-relaxed">
-                قاعدة البيانات متصلة عبر Supabase PostgreSQL، ويتم التحقق من
-                الجلسات على الخادم.
+                قاعدة البيانات متصلة عبر Supabase PostgreSQL، ويتم التحقق من الجلسات على الخادم.
               </p>
             </div>
           </div>

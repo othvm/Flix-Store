@@ -40,12 +40,8 @@ export function WhyUs() {
     >
       <div className="mx-auto max-w-7xl">
         <div className="text-center mb-14">
-          <span className="text-red-400 text-sm tracking-[0.3em] font-display">
-            — لماذا نحن —
-          </span>
-          <h2 className="section-heading text-chrome mt-2">
-            لماذا تختار FLIX STORE؟
-          </h2>
+          <span className="text-red-400 text-sm tracking-[0.3em] font-display">— لماذا نحن —</span>
+          <h2 className="section-heading text-chrome mt-2">لماذا تختار FLIX STORE؟</h2>
         </div>
 
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
@@ -63,9 +59,7 @@ export function WhyUs() {
               </div>
               <div className="font-display text-4xl text-chrome">{f.stat}</div>
               <div className="text-xs text-white/50 mb-3">{f.statLabel}</div>
-              <h3 className="font-display text-lg text-white tracking-wide">
-                {f.title}
-              </h3>
+              <h3 className="font-display text-lg text-white tracking-wide">{f.title}</h3>
               <p className="text-sm text-white/55 mt-1">{f.desc}</p>
             </motion.div>
           ))}

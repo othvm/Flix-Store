@@ -1,9 +1,5 @@
 import fs from "node:fs";
-import {
-  SEED_CATEGORIES,
-  SEED_PRODUCTS,
-  SEED_STORE_SETTINGS,
-} from "./seed-data";
+import { SEED_CATEGORIES, SEED_PRODUCTS, SEED_STORE_SETTINGS } from "./seed-data";
 
 /**
  * Migration Integrity Verification Script
@@ -25,13 +21,7 @@ const discrepancies: Discrepancy[] = [];
 let totalSourceChecks = 0;
 let totalPassedChecks = 0;
 
-function check(
-  source: string,
-  item: string,
-  field: string,
-  expected: unknown,
-  actual: unknown,
-) {
+function check(source: string, item: string, field: string, expected: unknown, actual: unknown) {
   totalSourceChecks++;
   if (JSON.stringify(expected) === JSON.stringify(actual)) {
     totalPassedChecks++;
@@ -44,9 +34,7 @@ function check(
 // 1. Verify Digital Subscriptions (src/lib/products.ts)
 // ----------------------------------------------------
 const prodTs = fs.readFileSync("src/lib/products.ts", "utf8");
-const prodMatch = prodTs.match(
-  /export const products: Product\[\] = (\[[\s\S]*?\]);/,
-);
+const prodMatch = prodTs.match(/export const products: Product\[\] = (\[[\s\S]*?\]);/);
 const rawProducts: Array<{
   id: string;
   name: string;
@@ -57,9 +45,7 @@ const rawProducts: Array<{
   popular?: boolean;
 }> = eval(prodMatch![1]);
 
-console.log(
-  `[1/3] Auditing ${rawProducts.length} digital subscription items from products.ts...`,
-);
+console.log(`[1/3] Auditing ${rawProducts.length} digital subscription items from products.ts...`);
 
 // Flatten seed variants to find each item
 const allSeedVariants = SEED_PRODUCTS.flatMap((p) =>
@@ -86,13 +72,7 @@ for (const raw of rawProducts) {
   } else {
     check("src/lib/products.ts", raw.name, "price", raw.price, matched.price);
     if (raw.duration) {
-      check(
-        "src/lib/products.ts",
-        raw.name,
-        "duration",
-        raw.duration,
-        matched.duration,
-      );
+      check("src/lib/products.ts", raw.name, "duration", raw.duration, matched.duration);
     }
   }
 }
@@ -101,9 +81,7 @@ for (const raw of rawProducts) {
 // 2. Verify Games & Offers (src/components/flix/Offers.tsx)
 // ----------------------------------------------------
 const offersTs = fs.readFileSync("src/components/flix/Offers.tsx", "utf8");
-const gamesMatch = offersTs.match(
-  /const GAMES:\s*Game\[\]\s*=\s*(\[[\s\S]*?\];)/,
-);
+const gamesMatch = offersTs.match(/const GAMES:\s*Game\[\]\s*=\s*(\[[\s\S]*?\];)/);
 if (!gamesMatch) {
   throw new Error("Could not find const GAMES in Offers.tsx");
 }
@@ -122,9 +100,7 @@ const rawGames: Array<{
   giftAmounts?: Array<{ label: string; price: number }>;
 }> = eval(text);
 
-console.log(
-  `[2/3] Auditing ${rawGames.length} games & offers from Offers.tsx...`,
-);
+console.log(`[2/3] Auditing ${rawGames.length} games & offers from Offers.tsx...`);
 
 for (const g of rawGames) {
   const seedP = SEED_PRODUCTS.find((p) => p.slug === g.slug);
@@ -149,37 +125,13 @@ for (const g of rawGames) {
   if (g.slots) {
     if (g.slots.prim5 !== null) {
       const v = seedP.variants.find((v) => v.accountSlot === "prim5");
-      check(
-        "Offers.tsx",
-        `${g.slug} (prim5)`,
-        "price",
-        g.slots.prim5,
-        v?.price,
-      );
-      check(
-        "Offers.tsx",
-        `${g.slug} (prim5)`,
-        "isAvailable",
-        true,
-        v?.isAvailable,
-      );
+      check("Offers.tsx", `${g.slug} (prim5)`, "price", g.slots.prim5, v?.price);
+      check("Offers.tsx", `${g.slug} (prim5)`, "isAvailable", true, v?.isAvailable);
     }
     if (g.slots.prim4 !== null) {
       const v = seedP.variants.find((v) => v.accountSlot === "prim4");
-      check(
-        "Offers.tsx",
-        `${g.slug} (prim4)`,
-        "price",
-        g.slots.prim4,
-        v?.price,
-      );
-      check(
-        "Offers.tsx",
-        `${g.slug} (prim4)`,
-        "isAvailable",
-        true,
-        v?.isAvailable,
-      );
+      check("Offers.tsx", `${g.slug} (prim4)`, "price", g.slots.prim4, v?.price);
+      check("Offers.tsx", `${g.slug} (prim4)`, "isAvailable", true, v?.isAvailable);
     } else {
       const v = seedP.variants.find((v) => v.accountSlot === "prim4");
       check(
@@ -193,13 +145,7 @@ for (const g of rawGames) {
     if (g.slots.sec !== null) {
       const v = seedP.variants.find((v) => v.accountSlot === "sec");
       check("Offers.tsx", `${g.slug} (sec)`, "price", g.slots.sec, v?.price);
-      check(
-        "Offers.tsx",
-        `${g.slug} (sec)`,
-        "isAvailable",
-        true,
-        v?.isAvailable,
-      );
+      check("Offers.tsx", `${g.slug} (sec)`, "isAvailable", true, v?.isAvailable);
     }
   }
 
@@ -207,21 +153,11 @@ for (const g of rawGames) {
   if (g.editions) {
     for (const ed of g.editions) {
       if (ed.slots.prim5 !== null) {
-        const v = seedP.variants.find(
-          (v) => v.edition === ed.label && v.accountSlot === "prim5",
-        );
-        check(
-          "Offers.tsx",
-          `${g.slug} ${ed.label} (prim5)`,
-          "price",
-          ed.slots.prim5,
-          v?.price,
-        );
+        const v = seedP.variants.find((v) => v.edition === ed.label && v.accountSlot === "prim5");
+        check("Offers.tsx", `${g.slug} ${ed.label} (prim5)`, "price", ed.slots.prim5, v?.price);
       }
       if (ed.slots.prim4 === null) {
-        const v = seedP.variants.find(
-          (v) => v.edition === ed.label && v.accountSlot === "prim4",
-        );
+        const v = seedP.variants.find((v) => v.edition === ed.label && v.accountSlot === "prim4");
         check(
           "Offers.tsx",
           `${g.slug} ${ed.label} (prim4 unavailable)`,
@@ -231,16 +167,8 @@ for (const g of rawGames) {
         );
       }
       if (ed.slots.sec !== null) {
-        const v = seedP.variants.find(
-          (v) => v.edition === ed.label && v.accountSlot === "sec",
-        );
-        check(
-          "Offers.tsx",
-          `${g.slug} ${ed.label} (sec)`,
-          "price",
-          ed.slots.sec,
-          v?.price,
-        );
+        const v = seedP.variants.find((v) => v.edition === ed.label && v.accountSlot === "sec");
+        check("Offers.tsx", `${g.slug} ${ed.label} (sec)`, "price", ed.slots.sec, v?.price);
       }
     }
   }
@@ -276,51 +204,33 @@ if (!psPlusP) {
 } else {
   // Essential
   const ess1mPrim5 = psPlusP.variants.find(
-    (v) =>
-      v.edition === "Essential" &&
-      v.duration === "شهر" &&
-      v.accountSlot === "prim5",
+    (v) => v.edition === "Essential" && v.duration === "شهر" && v.accountSlot === "prim5",
   );
   check("Products.tsx", "Essential 1m Prim5", "price", 450, ess1mPrim5?.price);
 
   const ess3mPrim4 = psPlusP.variants.find(
-    (v) =>
-      v.edition === "Essential" &&
-      v.duration === "3 شهور" &&
-      v.accountSlot === "prim4",
+    (v) => v.edition === "Essential" && v.duration === "3 شهور" && v.accountSlot === "prim4",
   );
   check("Products.tsx", "Essential 3m Prim4", "price", 350, ess3mPrim4?.price);
 
   const ess12mSec = psPlusP.variants.find(
-    (v) =>
-      v.edition === "Essential" &&
-      v.duration === "سنة" &&
-      v.accountSlot === "sec",
+    (v) => v.edition === "Essential" && v.duration === "سنة" && v.accountSlot === "sec",
   );
   check("Products.tsx", "Essential 12m Sec", "price", 350, ess12mSec?.price);
 
   // Extra
   const ext1mPrim5 = psPlusP.variants.find(
-    (v) =>
-      v.edition === "Extra" &&
-      v.duration === "شهر" &&
-      v.accountSlot === "prim5",
+    (v) => v.edition === "Extra" && v.duration === "شهر" && v.accountSlot === "prim5",
   );
   check("Products.tsx", "Extra 1m Prim5", "price", 600, ext1mPrim5?.price);
 
   const ext3mSec = psPlusP.variants.find(
-    (v) =>
-      v.edition === "Extra" &&
-      v.duration === "3 شهور" &&
-      v.accountSlot === "sec",
+    (v) => v.edition === "Extra" && v.duration === "3 شهور" && v.accountSlot === "sec",
   );
   check("Products.tsx", "Extra 3m Sec", "price", 400, ext3mSec?.price);
 
   const ext12mPrim5 = psPlusP.variants.find(
-    (v) =>
-      v.edition === "Extra" &&
-      v.duration === "سنة" &&
-      v.accountSlot === "prim5",
+    (v) => v.edition === "Extra" && v.duration === "سنة" && v.accountSlot === "prim5",
   );
   check("Products.tsx", "Extra 12m Prim5", "price", 3000, ext12mPrim5?.price);
 }
@@ -339,7 +249,5 @@ if (discrepancies.length > 0) {
   process.exit(1);
 } else {
   console.log("\nVERIFICATION RESULT: 100% EXACT PARITY CONFIRMED.");
-  console.log(
-    "Zero missing records. Zero price mismatches. Zero availability drifts.",
-  );
+  console.log("Zero missing records. Zero price mismatches. Zero availability drifts.");
 }

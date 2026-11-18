@@ -1,10 +1,6 @@
 import { getDb } from "./index";
 import { categories, products, productVariants, storeSettings } from "./schema";
-import {
-  SEED_CATEGORIES,
-  SEED_PRODUCTS,
-  SEED_STORE_SETTINGS,
-} from "./seed-data";
+import { SEED_CATEGORIES, SEED_PRODUCTS, SEED_STORE_SETTINGS } from "./seed-data";
 
 /**
  * Neon Postgres Database Seeding & Verification Script
@@ -130,10 +126,7 @@ export async function seedDatabase() {
   console.log("=== SEED COMPLETED SUCCESSFULLY ===");
 }
 
-if (
-  process.argv[1]?.endsWith("seed.ts") ||
-  process.argv[1]?.endsWith("seed.js")
-) {
+if (process.argv[1]?.endsWith("seed.ts") || process.argv[1]?.endsWith("seed.js")) {
   seedDatabase()
     .then(() => {
       console.log("Database seeded successfully.");

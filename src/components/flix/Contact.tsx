@@ -4,27 +4,17 @@ import { WA_NUMBERS, waLink } from "@/lib/products";
 import { Embers } from "./Embers";
 import type { StorefrontData } from "@/lib/api/storefront.functions";
 
-export function Contact({
-  settings,
-}: {
-  settings?: StorefrontData["settings"];
-}) {
+export function Contact({ settings }: { settings?: StorefrontData["settings"] }) {
   const primaryWa = settings?.contactInfo?.primaryWhatsapp || WA_NUMBERS[0];
-  const orderDisplay =
-    settings?.contactInfo?.displayOrderNumber || "01109664083";
-  const paymentDisplay =
-    settings?.contactInfo?.displayPaymentNumber || "01014956483";
+  const orderDisplay = settings?.contactInfo?.displayOrderNumber || "01109664083";
+  const paymentDisplay = settings?.contactInfo?.displayPaymentNumber || "01014956483";
   return (
-    <section
-      id="contact"
-      className="relative py-28 px-4 sm:px-6 overflow-hidden"
-    >
+    <section id="contact" className="relative py-28 px-4 sm:px-6 overflow-hidden">
       <div className="absolute inset-0 -z-10">
         <div
           className="absolute inset-0"
           style={{
-            background:
-              "radial-gradient(ellipse at 50% 50%, rgba(204,0,0,0.25), transparent 60%)",
+            background: "radial-gradient(ellipse at 50% 50%, rgba(204,0,0,0.25), transparent 60%)",
           }}
         />
       </div>
@@ -38,9 +28,7 @@ export function Contact({
         >
           جاهز تبدأ؟ احصل على اشتراكك الآن
         </motion.h2>
-        <p className="text-xl text-white/70 mt-4">
-          اختر منتجك، ادفع، واستقبل اشتراكك خلال دقائق
-        </p>
+        <p className="text-xl text-white/70 mt-4">اختر منتجك، ادفع، واستقبل اشتراكك خلال دقائق</p>
 
         <div className="grid sm:grid-cols-2 gap-4 mt-10 max-w-2xl mx-auto">
           <motion.a
@@ -56,10 +44,7 @@ export function Contact({
               <MessageCircle className="w-7 h-7 text-green-400 group-hover:text-white" />
               <span className="absolute inset-0 rounded-full pulse-green" />
             </span>
-            <span
-              className="font-display text-lg sm:text-xl tracking-wider text-white"
-              dir="ltr"
-            >
+            <span className="font-display text-lg sm:text-xl tracking-wider text-white" dir="ltr">
               اطلب الآن — {orderDisplay} 💬
             </span>
           </motion.a>
@@ -78,10 +63,7 @@ export function Contact({
               <MessageCircle className="w-7 h-7 text-green-400 group-hover:text-white" />
               <span className="absolute inset-0 rounded-full pulse-green" />
             </span>
-            <span
-              className="font-display text-lg sm:text-xl tracking-wider text-white"
-              dir="ltr"
-            >
+            <span className="font-display text-lg sm:text-xl tracking-wider text-white" dir="ltr">
               تواصل للدفع — {paymentDisplay} 💬
             </span>
           </motion.a>

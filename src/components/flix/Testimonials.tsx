@@ -30,15 +30,10 @@ export function Testimonials() {
           <span className="text-red-400 text-sm tracking-[0.3em] font-display">
             — آراء العملاء —
           </span>
-          <h2 className="section-heading text-chrome mt-2">
-            ماذا يقول عملاؤنا؟
-          </h2>
+          <h2 className="section-heading text-chrome mt-2">ماذا يقول عملاؤنا؟</h2>
           <div className="flex justify-center gap-1 mt-4">
             {[1, 2, 3, 4, 5].map((i) => (
-              <Star
-                key={i}
-                className="w-6 h-6 fill-yellow-400 text-yellow-400"
-              />
+              <Star key={i} className="w-6 h-6 fill-yellow-400 text-yellow-400" />
             ))}
           </div>
           <div className="text-white/60 mt-2 text-sm">
@@ -63,22 +58,15 @@ export function Testimonials() {
                   {r.initial}
                 </div>
                 <div>
-                  <div className="font-display text-white tracking-wide">
-                    {r.name}
-                  </div>
+                  <div className="font-display text-white tracking-wide">{r.name}</div>
                   <div className="flex gap-0.5">
                     {[1, 2, 3, 4, 5].map((s) => (
-                      <Star
-                        key={s}
-                        className="w-3 h-3 fill-yellow-400 text-yellow-400"
-                      />
+                      <Star key={s} className="w-3 h-3 fill-yellow-400 text-yellow-400" />
                     ))}
                   </div>
                 </div>
               </div>
-              <p className="text-white/75 text-sm leading-relaxed">
-                "{r.text}"
-              </p>
+              <p className="text-white/75 text-sm leading-relaxed">"{r.text}"</p>
             </motion.div>
           ))}
         </div>

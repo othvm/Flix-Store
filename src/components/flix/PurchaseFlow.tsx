@@ -38,12 +38,9 @@ function extractStr(val: unknown, fallback: string): string {
   if (typeof val === "string" && val.trim().length > 0) return val.trim();
   if (typeof val === "object" && val !== null) {
     const obj = val as Record<string, unknown>;
-    if (typeof obj.number === "string" && obj.number.trim().length > 0)
-      return obj.number.trim();
-    if (typeof obj.id === "string" && obj.id.trim().length > 0)
-      return obj.id.trim();
-    if (typeof obj.value === "string" && obj.value.trim().length > 0)
-      return obj.value.trim();
+    if (typeof obj.number === "string" && obj.number.trim().length > 0) return obj.number.trim();
+    if (typeof obj.id === "string" && obj.id.trim().length > 0) return obj.id.trim();
+    if (typeof obj.value === "string" && obj.value.trim().length > 0) return obj.value.trim();
   }
   return fallback;
 }
@@ -64,11 +61,7 @@ function CopyBtn({ value }: { value: string }) {
       }}
       className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs bg-white/5 border border-white/15 hover:border-red-500/60 hover:text-white text-white/80 transition"
     >
-      {copied ? (
-        <Check className="h-3.5 w-3.5 text-green-400" />
-      ) : (
-        <Copy className="h-3.5 w-3.5" />
-      )}
+      {copied ? <Check className="h-3.5 w-3.5 text-green-400" /> : <Copy className="h-3.5 w-3.5" />}
       {copied ? "تم النسخ" : "نسخ"}
     </button>
   );
@@ -85,30 +78,18 @@ export function PurchaseFlow({
   order: PurchaseOrder | null;
   settings?: StorefrontData["settings"];
 }) {
-  const orderWa = extractStr(
-    settings?.contactInfo?.primaryWhatsapp,
-    DEFAULT_ORDER_WA,
-  );
+  const orderWa = extractStr(settings?.contactInfo?.primaryWhatsapp, DEFAULT_ORDER_WA);
   const vodafoneNumber = extractStr(
     settings?.paymentAccounts?.vodafoneCash,
     DEFAULT_VODAFONE_NUMBER,
   );
-  const instapayNumber = extractStr(
-    settings?.paymentAccounts?.instapay,
-    DEFAULT_INSTAPAY_NUMBER,
-  );
-  const displayOrderNumber = extractStr(
-    settings?.contactInfo?.displayOrderNumber,
-    "01109664083",
-  );
+  const instapayNumber = extractStr(settings?.paymentAccounts?.instapay, DEFAULT_INSTAPAY_NUMBER);
+  const displayOrderNumber = extractStr(settings?.contactInfo?.displayOrderNumber, "01109664083");
   const displayPaymentNumber = extractStr(
     settings?.contactInfo?.displayPaymentNumber,
     "01014956483",
   );
-  const teldaId = extractStr(
-    settings?.paymentAccounts?.telda,
-    DEFAULT_TELDA_ID,
-  );
+  const teldaId = extractStr(settings?.paymentAccounts?.telda, DEFAULT_TELDA_ID);
 
   const methods = useMemo(
     () => [
@@ -256,9 +237,7 @@ export function PurchaseFlow({
                       {s}
                     </span>
                     {s < 3 && (
-                      <span
-                        className={`w-6 h-px ${step > s ? "bg-red-500" : "bg-white/10"}`}
-                      />
+                      <span className={`w-6 h-px ${step > s ? "bg-red-500" : "bg-white/10"}`} />
                     )}
                   </div>
                 ))}
@@ -274,31 +253,24 @@ export function PurchaseFlow({
               {/* STEP 1 */}
               {step === 1 && (
                 <div className="space-y-5">
-                  <h3 className="font-display text-2xl text-chrome">
-                    تأكيد طلبك
-                  </h3>
+                  <h3 className="font-display text-2xl text-chrome">تأكيد طلبك</h3>
 
                   <div className="rounded-xl border border-red-500/30 bg-gradient-to-b from-red-950/30 to-black/30 p-4 space-y-2.5">
                     <div className="flex items-center gap-2 text-white">
                       <Gamepad2 className="h-4 w-4 text-red-400" />
-                      <span className="font-display tracking-wide">
-                        {order.product}
-                      </span>
+                      <span className="font-display tracking-wide">{order.product}</span>
                     </div>
                     <div className="flex items-center gap-2 text-white/80 text-sm flex-wrap">
                       {order.duration && (
                         <>
                           <Clock className="h-4 w-4 text-red-400" />
-                          المدة:{" "}
-                          <span className="text-white">{order.duration}</span>
+                          المدة: <span className="text-white">{order.duration}</span>
                           <span className="text-white/30">·</span>
                         </>
                       )}
                       {order.platform && (
                         <>
-                          <span className="text-white/70">
-                            المنصة: {order.platform}
-                          </span>
+                          <span className="text-white/70">المنصة: {order.platform}</span>
                           <span className="text-white/30">·</span>
                         </>
                       )}
@@ -315,9 +287,7 @@ export function PurchaseFlow({
                   </div>
 
                   <div>
-                    <div className="text-sm text-white/70 mb-3">
-                      اختر طريقة الدفع:
-                    </div>
+                    <div className="text-sm text-white/70 mb-3">اختر طريقة الدفع:</div>
                     <div className="grid grid-cols-2 gap-2.5">
                       {methods.map((m) => {
                         const active = method === m.id;
@@ -338,9 +308,7 @@ export function PurchaseFlow({
                               </span>
                             )}
                             <div className="text-xl mb-1">{m.icon}</div>
-                            <div className="font-display text-sm text-white">
-                              {m.title}
-                            </div>
+                            <div className="font-display text-sm text-white">{m.title}</div>
                             <div className="text-[11px] text-white/55 mt-0.5 leading-tight">
                               {m.detail}
                             </div>
@@ -363,29 +331,21 @@ export function PurchaseFlow({
               {/* STEP 2 */}
               {step === 2 && selectedMethod && (
                 <div className="space-y-5">
-                  <h3 className="font-display text-2xl text-chrome">
-                    خطوات الدفع
-                  </h3>
+                  <h3 className="font-display text-2xl text-chrome">خطوات الدفع</h3>
 
                   <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4 space-y-3">
                     <div className="flex items-center gap-2 font-display text-white">
-                      <span className="text-xl">{selectedMethod.icon}</span>{" "}
-                      {selectedMethod.title}
+                      <span className="text-xl">{selectedMethod.icon}</span> {selectedMethod.title}
                     </div>
                     <div className="text-sm text-white/70">
                       حول مبلغ{" "}
-                      <span className="font-display text-red-300 text-base">
-                        {order.price}
-                      </span>{" "}
+                      <span className="font-display text-red-300 text-base">{order.price}</span>{" "}
                       جنيه على:
                     </div>
 
                     {method === "vodafone" && (
                       <div className="flex items-center justify-between gap-2 rounded-lg bg-black/40 border border-white/10 p-3">
-                        <div
-                          dir="ltr"
-                          className="font-display text-lg text-white tracking-wider"
-                        >
+                        <div dir="ltr" className="font-display text-lg text-white tracking-wider">
                           📞 {vodafoneNumber}
                         </div>
                         <CopyBtn value={vodafoneNumber} />
@@ -394,10 +354,7 @@ export function PurchaseFlow({
 
                     {method === "telda" && (
                       <div className="flex items-center justify-between gap-2 rounded-lg bg-black/40 border border-white/10 p-3">
-                        <div
-                          dir="ltr"
-                          className="font-display text-lg text-white tracking-wider"
-                        >
+                        <div dir="ltr" className="font-display text-lg text-white tracking-wider">
                           👤 {teldaId}
                         </div>
                         <CopyBtn value={teldaId} />
@@ -414,9 +371,7 @@ export function PurchaseFlow({
                             >
                               📞 {instapayNumber}
                             </div>
-                            <div className="text-xs text-white/60 mt-0.5">
-                              👤 مصطفى محمد
-                            </div>
+                            <div className="text-xs text-white/60 mt-0.5">👤 مصطفى محمد</div>
                           </div>
                           <CopyBtn value={instapayNumber} />
                         </div>
@@ -426,8 +381,7 @@ export function PurchaseFlow({
                           rel="noreferrer"
                           className="inline-flex items-center justify-center gap-2 w-full px-3 py-2.5 rounded-lg bg-red-600/15 border border-red-500/50 hover:bg-red-600/25 text-red-200 text-sm transition"
                         >
-                          <ExternalLink className="h-4 w-4" /> افتح رابط الدفع
-                          المباشر
+                          <ExternalLink className="h-4 w-4" /> افتح رابط الدفع المباشر
                         </a>
                       </div>
                     )}
@@ -437,19 +391,15 @@ export function PurchaseFlow({
                   <div className="rounded-xl border-2 border-red-500/60 bg-red-500/10 p-3.5 flex gap-2.5 text-sm text-red-100">
                     <AlertTriangle className="h-5 w-5 text-red-400 shrink-0 mt-0.5" />
                     <div>
-                      <div className="font-display tracking-wider mb-0.5">
-                        ⚠️ مهم جداً
-                      </div>
-                      ممنوع استرجاع الفلوس بعد التحويل لأي سبب — إلا في حالة خطأ
-                      من جانبنا أو تأخير في التسليم.
+                      <div className="font-display tracking-wider mb-0.5">⚠️ مهم جداً</div>
+                      ممنوع استرجاع الفلوس بعد التحويل لأي سبب — إلا في حالة خطأ من جانبنا أو تأخير
+                      في التسليم.
                     </div>
                   </div>
 
                   {/* Upload */}
                   <div>
-                    <div className="text-sm text-white/80 mb-2">
-                      ارفع صورة التحويل 📸
-                    </div>
+                    <div className="text-sm text-white/80 mb-2">ارفع صورة التحويل 📸</div>
                     <input
                       ref={fileRef}
                       type="file"
@@ -476,12 +426,8 @@ export function PurchaseFlow({
                       ) : (
                         <>
                           <Upload className="h-7 w-7 text-red-400" />
-                          <span className="text-sm">
-                            اضغط لاختيار صورة الإيصال
-                          </span>
-                          <span className="text-[11px] text-white/40">
-                            JPG / PNG / WEBP
-                          </span>
+                          <span className="text-sm">اضغط لاختيار صورة الإيصال</span>
+                          <span className="text-[11px] text-white/40">JPG / PNG / WEBP</span>
                         </>
                       )}
                     </button>
@@ -490,9 +436,7 @@ export function PurchaseFlow({
                   {/* Fields */}
                   <div className="grid gap-3">
                     <div>
-                      <label className="block text-xs text-white/60 mb-1.5">
-                        الاسم
-                      </label>
+                      <label className="block text-xs text-white/60 mb-1.5">الاسم</label>
                       <input
                         value={name}
                         onChange={(e) => setName(e.target.value)}
@@ -501,14 +445,10 @@ export function PurchaseFlow({
                       />
                     </div>
                     <div>
-                      <label className="block text-xs text-white/60 mb-1.5">
-                        واتساب التواصل
-                      </label>
+                      <label className="block text-xs text-white/60 mb-1.5">واتساب التواصل</label>
                       <input
                         value={wa}
-                        onChange={(e) =>
-                          setWa(e.target.value.replace(/[^\d+]/g, ""))
-                        }
+                        onChange={(e) => setWa(e.target.value.replace(/[^\d+]/g, ""))}
                         inputMode="tel"
                         dir="ltr"
                         placeholder="رقم واتساب التواصل معك"
@@ -533,8 +473,7 @@ export function PurchaseFlow({
                     </button>
                   </div>
                   <p className="text-[11px] text-white/40 text-center">
-                    سيفتح واتساب برسالة جاهزة — أرسل صورة الإيصال داخل المحادثة
-                    بعد فتحها.
+                    سيفتح واتساب برسالة جاهزة — أرسل صورة الإيصال داخل المحادثة بعد فتحها.
                   </p>
                 </div>
               )}
@@ -545,13 +484,9 @@ export function PurchaseFlow({
                   <div className="mx-auto w-16 h-16 rounded-full bg-green-500/15 border border-green-500/50 flex items-center justify-center">
                     <PartyPopper className="h-8 w-8 text-green-400" />
                   </div>
-                  <h3 className="font-display text-3xl text-chrome">
-                    ✅ تم إرسال طلبك بنجاح!
-                  </h3>
+                  <h3 className="font-display text-3xl text-chrome">✅ تم إرسال طلبك بنجاح!</h3>
                   <div className="rounded-xl border-2 border-red-500/60 bg-black/60 p-5">
-                    <div className="text-xs text-white/60 tracking-wider mb-2">
-                      🔑 كود طلبك
-                    </div>
+                    <div className="text-xs text-white/60 tracking-wider mb-2">🔑 كود طلبك</div>
                     <div
                       dir="ltr"
                       className="font-display text-red-stroke"
@@ -569,9 +504,7 @@ export function PurchaseFlow({
                   </div>
 
                   <div className="rounded-xl border border-amber-500/40 bg-gradient-to-b from-amber-500/5 to-amber-900/10 px-5 py-4">
-                    <div className="salla-text text-3xl sm:text-4xl">
-                      صلِّ على النبي ﷺ
-                    </div>
+                    <div className="salla-text text-3xl sm:text-4xl">صلِّ على النبي ﷺ</div>
                   </div>
                   <p className="text-white/70 text-sm leading-relaxed">
                     سيتم التواصل معك على:{" "}
@@ -593,8 +526,7 @@ export function PurchaseFlow({
                       rel="noreferrer"
                       className="inline-flex items-center justify-center gap-2 px-4 py-3 rounded-lg bg-green-600/15 border border-green-500/50 hover:bg-green-600/25 text-green-200 text-sm transition"
                     >
-                      <MessageCircle className="h-4 w-4" /> تواصل معنا ·{" "}
-                      {displayOrderNumber}
+                      <MessageCircle className="h-4 w-4" /> تواصل معنا · {displayOrderNumber}
                     </a>
                     <a
                       href={`https://wa.me/${orderWa}`}
@@ -602,15 +534,11 @@ export function PurchaseFlow({
                       rel="noreferrer"
                       className="inline-flex items-center justify-center gap-2 px-4 py-3 rounded-lg bg-green-600/15 border border-green-500/50 hover:bg-green-600/25 text-green-200 text-sm transition"
                     >
-                      <MessageCircle className="h-4 w-4" /> قسم التحويلات ·{" "}
-                      {displayPaymentNumber}
+                      <MessageCircle className="h-4 w-4" /> قسم التحويلات · {displayPaymentNumber}
                     </a>
                   </div>
 
-                  <button
-                    onClick={onClose}
-                    className="btn-ghost-flix !py-2.5 !text-sm"
-                  >
+                  <button onClick={onClose} className="btn-ghost-flix !py-2.5 !text-sm">
                     العودة للرئيسية
                   </button>
                 </div>

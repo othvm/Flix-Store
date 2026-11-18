@@ -2,15 +2,7 @@ import { createFileRoute, redirect, useRouter } from "@tanstack/react-router";
 import { useState } from "react";
 import { checkAdminAuthFn, loginAdminFn } from "@/lib/api/admin.functions";
 import { ADMIN_ACCESS_LOCKED } from "@/lib/admin-lock";
-import {
-  Lock,
-  KeyRound,
-  Eye,
-  EyeOff,
-  Loader2,
-  AlertCircle,
-  Shield,
-} from "lucide-react";
+import { Lock, KeyRound, Eye, EyeOff, Loader2, AlertCircle, Shield } from "lucide-react";
 
 export const Route = createFileRoute("/admin/login")({
   beforeLoad: async () => {
@@ -54,10 +46,7 @@ function AdminLogin() {
       await router.invalidate();
       router.navigate({ to: "/admin" });
     } catch (err: unknown) {
-      const message =
-        err instanceof Error
-          ? err.message
-          : "حدث خطأ غير متوقع أثناء تسجيل الدخول.";
+      const message = err instanceof Error ? err.message : "حدث خطأ غير متوقع أثناء تسجيل الدخول.";
       setErrorMessage(message);
     } finally {
       setLoading(false);
@@ -98,10 +87,7 @@ function AdminLogin() {
             )}
 
             <div>
-              <label
-                htmlFor="accessCode"
-                className="block text-xs font-medium text-zinc-300 mb-2"
-              >
+              <label htmlFor="accessCode" className="block text-xs font-medium text-zinc-300 mb-2">
                 رمز الدخول (Access Code)
               </label>
               <div className="relative">
@@ -124,11 +110,7 @@ function AdminLogin() {
                   onClick={() => setShowCode(!showCode)}
                   className="absolute inset-y-0 left-0 flex items-center pl-3 text-zinc-500 hover:text-zinc-300 transition-colors"
                 >
-                  {showCode ? (
-                    <EyeOff className="w-4 h-4" />
-                  ) : (
-                    <Eye className="w-4 h-4" />
-                  )}
+                  {showCode ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
             </div>
@@ -154,8 +136,7 @@ function AdminLogin() {
 
           <div className="mt-6 pt-5 border-t border-zinc-900 text-center">
             <p className="text-[11px] text-zinc-500">
-              الدخول مقصور على مشرفي Flix Store المعتمدين. يتم تسجيل جميع
-              المحاولات أمنياً.
+              الدخول مقصور على مشرفي Flix Store المعتمدين. يتم تسجيل جميع المحاولات أمنياً.
             </p>
           </div>
         </div>

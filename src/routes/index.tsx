@@ -57,11 +57,7 @@ function Index() {
         availability={data.psPlusAvailability}
         settings={data.settings}
       />
-      <Offers
-        games={data.games}
-        offers={data.offers}
-        settings={data.settings}
-      />
+      <Offers games={data.games} offers={data.offers} settings={data.settings} />
       <ComingSoon />
       <HowItWorks />
       <Payments settings={data.settings} />

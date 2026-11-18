@@ -2,11 +2,7 @@ import { MessageCircle } from "lucide-react";
 import { WA_NUMBERS, waLink } from "@/lib/products";
 import type { StorefrontData } from "@/lib/api/storefront.functions";
 
-export function StickyWA({
-  settings,
-}: {
-  settings?: StorefrontData["settings"];
-}) {
+export function StickyWA({ settings }: { settings?: StorefrontData["settings"] }) {
   const primaryWa = settings?.contactInfo?.primaryWhatsapp || WA_NUMBERS[0];
   return (
     <a
